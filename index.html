@@ -4206,7 +4206,14 @@
             
             if (modalElement) {
                 modalElement.innerHTML = modalContent;
-                document.getElementById('meal-modal').style.display = 'flex';
+                modalElement.style.display = 'block';  // ADD THIS LINE
+                modalElement.style.visibility = 'visible';  // ADD THIS LINE
+                modalElement.style.opacity = '1';  // ADD THIS LINE
+                
+                const modal = document.getElementById('meal-modal');
+                modal.style.display = 'flex';
+                modal.style.alignItems = 'center';
+                modal.style.justifyContent = 'center';
                 console.log('Modal should be visible now');
             } else {
                 console.error('modal-content element not found!');
