@@ -4141,9 +4141,9 @@
         }
 
         function getDayName(dayIndex) {
-            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-            return days[dayIndex];
-        }
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            return t(days[dayIndex]);
+    }
 
         async function replaceMeal(dayIndex, mealType) {
             // Filter meals by type
@@ -4153,6 +4153,10 @@
                 'dinner': 'dinner'
             };
             
+        function closeModal() {
+            document.getElementById('meal-modal').style.display = 'none';
+        }
+
             const filteredMeals = mealLibrary.filter(m => m.type === mealTypeMap[mealType]);
             
             if (filteredMeals.length === 0) {
@@ -4162,7 +4166,7 @@
 
             // Create modal with meal selection
             const modalContent = `
-                <h2>Select a ${mealType} for ${getDayName(dayIndex)}</h2>
+                <h2>${t('selectMeal')} ${t(mealType)} ${t('for')} ${getDayName(dayIndex)}</h2>
                 <div class="modal-meal-select">
                     ${filteredMeals.map(meal => `
                         <div class="meal-select-item" onclick="selectReplacementMeal(${dayIndex}, '${mealType}', '${meal.name.replace(/'/g, "\\'")}')">
@@ -4422,6 +4426,6 @@
             </div>
         </div>
     </div>
-    
+
 </body>
 </html>
