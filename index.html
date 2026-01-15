@@ -1,0 +1,4407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Meal Planner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+            overflow-x: auto;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .content {
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .meal-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meal-card-content {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .meal-card-info {
+            flex: 1;
+        }
+
+        .meal-card h3 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+
+        .meal-card-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-shrink: 0;
+            min-width: 110px;
+        }
+
+        .btn-compact {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-compact:hover {
+            background: #5568d3;
+        }
+
+        .btn-compact.secondary {
+            background: #e5e7eb;
+            color: #4b5563;
+        }
+
+        .btn-compact.secondary:hover {
+            background: #d1d5db;
+        }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+            width: 40px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+
+        .filters-container {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .meal-item {
+            cursor: pointer;
+            padding: 8px;
+            margin: 4px 0;
+            background: white;
+            border-radius: 6px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+        .meal-item:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .custom-badge {
+            background: #10b981;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            margin-left: 6px;
+            font-weight: 600;
+        }
+
+        .btn-add-meal {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .btn-add-meal:hover {
+            background: #059669;
+        }
+
+        .meal-meta {
+            display: flex;
+            gap: 15px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge.easy { background: #10b981; }
+        .badge.medium { background: #f59e0b; }
+        .badge.hard { background: #ef4444; }
+
+        .stars {
+            display: flex;
+            gap: 5px;
+            margin: 10px 0;
+        }
+
+        .star {
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .star.filled {
+            color: #fbbf24;
+        }
+
+        .star.empty {
+            color: #d1d5db;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .input-group {
+            margin: 15px 0;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .input-group input,
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .input-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .shopping-list {
+            list-style: none;
+        }
+
+        .shopping-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+
+        .shopping-item-content {
+            display: grid;
+            grid-template-columns: 22px 1fr 70px 45px 45px;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .shopping-item input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+        }
+
+        .shopping-item-details {
+            display: contents;
+        }
+
+        .shopping-item-name {
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .shopping-item-quantity {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+            background: #6b7280;
+            padding: 4px 12px;
+            border-radius: 6px;
+            white-space: nowrap;
+            text-align: center;
+            width: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .shopping-item-buttons {
+            display: contents;
+        }
+
+        .alt-btn {
+            grid-column: 4;
+            width: 45px;
+        }
+
+        .info-btn {
+            grid-column: 5;
+            width: 45px;
+        }
+
+        .shopping-item.checked {
+            opacity: 0.5;
+        }
+
+        .shopping-item.checked .shopping-item-name,
+        .shopping-item.checked .shopping-item-quantity {
+            text-decoration: line-through;
+        }
+
+        .info-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .info-btn:hover {
+            background: #2563eb;
+        }
+
+        .meal-usage {
+            background: #eff6ff;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+
+        .meal-usage h4 {
+            color: #1e40af;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .meal-usage-item {
+            padding: 6px 0;
+            color: #1e3a8a;
+            font-size: 13px;
+            border-bottom: 1px solid #dbeafe;
+        }
+
+        .meal-usage-item:last-child {
+            border-bottom: none;
+        }
+
+        .week-plan {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .day-row {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .day-row:last-child {
+            border-bottom: none;
+        }
+
+        .day-label {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .meals-list {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .meal-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .meal-label {
+            font-weight: 600;
+            min-width: 80px;
+        }
+
+        .meal-name {
+            flex: 1;
+        }
+
+        .meal-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-meal-action {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .btn-meal-action:hover {
+            background: #5568d3;
+        }
+
+        .btn-meal-action.replace {
+            background: #10b981;
+        }
+
+        .btn-meal-action.replace:hover {
+            background: #059669;
+        }
+
+        /* Mobile responsive design */
+        @media (max-width: 768px) {
+            .day-row {
+                grid-template-columns: 1fr;
+                padding: 15px 0;
+            }
+
+            .day-label {
+                font-size: 16px;
+                margin-bottom: 10px;
+                padding-bottom: 8px;
+                border-bottom: 2px solid #667eea;
+            }
+
+            .meal-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+                padding: 12px;
+            }
+
+            .meal-label {
+                min-width: auto;
+                font-size: 13px;
+            }
+
+            .meal-name {
+                font-size: 14px;
+                padding: 5px 0;
+            }
+
+            .meal-actions {
+                width: 100%;
+                gap: 8px;
+            }
+
+            .btn-meal-action {
+                flex: 1;
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .week-plan-actions {
+                flex-direction: column;
+            }
+
+            .week-plan-actions .btn {
+                width: 100%;
+            }
+        }
+
+        .modal-meal-select {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .meal-select-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f9fafb;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .meal-select-item:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .week-plan-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .week-plan-actions .btn {
+            flex: 1;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        /* Mobile styles for shopping list and meal library */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                border-radius: 15px;
+            }
+
+            .content {
+                padding: 15px 12px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .tab {
+                font-size: 13px;
+                padding: 10px 12px;
+            }
+
+            .shopping-item-content {
+                display: grid;
+                grid-template-columns: 20px 1fr 50px 38px 38px;
+                gap: 6px;
+                align-items: center;
+            }
+
+            .shopping-item {
+                padding: 12px 8px;
+            }
+
+            .shopping-item input[type="checkbox"] {
+                width: 20px;
+                height: 20px;
+            }
+
+            .shopping-item-details {
+                display: contents;
+            }
+
+            .shopping-item-name {
+                font-size: 13px;
+                line-height: 1.4;
+                min-width: 0;
+            }
+
+            .shopping-item-quantity {
+                font-size: 12px;
+                width: 50px;
+                padding: 6px 4px;
+                height: 28px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .shopping-item-buttons {
+                display: contents;
+            }
+
+            .info-btn, .alt-btn {
+                padding: 6px 4px;
+                font-size: 10px;
+                width: 38px;
+                height: 28px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .alt-btn {
+                grid-column: 4;
+            }
+
+            .info-btn {
+                grid-column: 5;
+            }
+
+            .meal-card-content {
+                flex-direction: column;
+            }
+
+            .meal-card-actions {
+                flex-direction: row;
+                width: 100%;
+                min-width: auto;
+            }
+
+            .btn-compact {
+                flex: 1;
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            .filter-chips {
+                flex-wrap: wrap;
+            }
+
+            .chip {
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+
+            .modal-content {
+                width: 95%;
+                max-width: 95%;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .notification-alert {
+                font-size: 13px;
+            }
+
+            .notification-alert h3 {
+                font-size: 13px;
+            }
+
+            .notification-alert li {
+                font-size: 12px;
+            }
+        }
+
+        .filter-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .filter-section h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .filter-chips {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .chip.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .notes-section {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .notes-section strong {
+            color: #856404;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .notification-alert {
+            background: #fef3c7;
+            border-left: 3px solid #f59e0b;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .notification-alert h3 {
+            color: #92400e;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .notification-alert ul {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+
+        .notification-alert li {
+            color: #78350f;
+            margin-bottom: 6px;
+            line-height: 1.4;
+            font-size: 13px;
+        }
+
+        .notification-urgent {
+            background: #fee2e2;
+            border-left-color: #ef4444;
+        }
+
+        .notification-urgent h3 {
+            color: #991b1b;
+        }
+
+        .notification-urgent li {
+            color: #7f1d1d;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .recipe-steps {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .recipe-steps ol {
+            padding-left: 20px;
+        }
+
+        .recipe-steps li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .requirement-item {
+            background: #f8f9fa;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .requirement-item input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .requirement-item button {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .requirement-item button:hover {
+            background: #dc2626;
+        }
+
+        .alt-btn {
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .alt-btn:hover {
+            background: #7c3aed;
+        }
+
+        .alternatives-list {
+            background: #f3f4f6;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+
+        .alternatives-list h4 {
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .alternatives-list ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .alternatives-list li {
+            padding: 6px 0;
+            color: #4b5563;
+            font-size: 13px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .alternatives-list li:last-child {
+            border-bottom: none;
+        }
+
+        .language-switcher {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .lang-btn {
+            background: #f3f4f6;
+            color: #374151;
+            border: 2px solid #e5e7eb;
+            padding: 10px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 120px;
+        }
+
+        .lang-btn:hover {
+            background: #e5e7eb;
+            border-color: #d1d5db;
+        }
+
+        .lang-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="app-title">🍽️ Family Meal Planner</h1>
+            <p id="app-subtitle">Plan meals for your family of 3 (baby-safe options)</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('weekly')" id="tab-weekly">📅 This Week</button>
+            <button class="tab" onclick="switchTab('shopping')" id="tab-shopping">🛒 Shopping List</button>
+            <button class="tab" onclick="switchTab('library')" id="tab-library">📚 Meal Library</button>
+            <button class="tab" onclick="switchTab('generate')" id="tab-requirements">⚙️ Requirements</button>
+        </div>
+
+        <div class="content">
+            <!-- Weekly Plan Section -->
+            <div id="weekly-section" class="section active">
+                <h2 style="margin-bottom: 20px;" id="weekly-plan-title">Your Weekly Plan</h2>
+                <div id="weekly-plan-content"></div>
+            </div>
+
+            <!-- Meal Library Section -->
+            <div id="library-section" class="section">
+                <h2 style="margin-bottom: 15px;" id="meal-library-title">Meal Library</h2>
+                
+                <div class="filters-container">
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <input type="text" id="meal-search" placeholder="..." id="meal-search" onkeyup="searchMeals()" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                    </div>
+                    
+                    <div class="filter-section" style="margin-bottom: 15px;">
+                        <h3 id="filter-rating-label">Filter by Rating</h3>
+                        <div class="filter-chips">
+                            <div class="chip active" data-filter="all" onclick="filterMeals('all')" id="filter-all-meals">All Meals</div>
+                            <div class="chip" data-filter="favorites" onclick="filterMeals('favorites')" id="filter-favorites">⭐ Favorites (4-5)</div>
+                            <div class="chip" data-filter="good" onclick="filterMeals('good')" id="filter-good">👍 Good (3)</div>
+                            <div class="chip" data-filter="avoid" onclick="filterMeals('avoid')" id="filter-avoid">👎 Avoid (1-2)</div>
+                        </div>
+                    </div>
+
+                    <div class="filter-section" style="margin-bottom: 15px;">
+                        <h3 id="filter-type-label">Filter by Meal Type</h3>
+                        <div class="filter-chips">
+                            <div class="chip active" data-type="all" onclick="filterByType('all')" id="filter-all-types">All Types</div>
+                            <div class="chip" data-type="breakfast" onclick="filterByType('breakfast')" id="filter-breakfast">🌅 Breakfast</div>
+                            <div class="chip" data-type="lunch" onclick="filterByType('lunch')" id="filter-lunch">🥗 Lunch</div>
+                            <div class="chip" data-type="dinner" onclick="filterByType('dinner')" id="filter-dinner">🍽️ Dinner</div>
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <h3 id="filter-source-label">Filter by Source</h3>
+                        <div class="filter-chips">
+                            <div class="chip active" data-source="all" onclick="filterBySource('all')" id="filter-all-sources">All Meals</div>
+                            <div class="chip" data-source="default" onclick="filterBySource('default')" id="filter-default">📖 Default</div>
+                            <div class="chip" data-source="custom" onclick="filterBySource('custom')" id="filter-custom">✨ My Custom</div>
+                        </div>
+                    </div>
+
+                    <button class="btn-add-meal" onclick="openAddCustomMeal()" id="btn-add-custom-meal">+ Add Custom Meal</button>
+                </div>
+
+                <div id="meals-container"></div>
+            </div>
+
+            <!-- Shopping List Section -->
+            <div id="shopping-section" class="section">
+                <h2 id="shopping-list-title" style="margin-bottom: 20px;">Shopping List for This Week</h2>
+                <div id="shopping-list-content"></div>
+            </div>
+
+            <!-- Generate Plan Section -->
+            <div id="generate-section" class="section">
+                <h2 style="margin-bottom: 20px;" id="requirements-title">Meal Plan Requirements</h2>
+                <p style="margin-bottom: 20px; color: #666;" id="requirements-description">Set your requirements for weekly meal planning. These will be used whenever you generate a new plan.</p>
+                
+                <div class="input-group">
+                    <label id="weekly-requirements-label">Weekly Requirements:</label>
+                    <p style="font-size: 13px; color: #666; margin-bottom: 10px;" id="add-remove-requirements">Add or remove requirements for your meal plans</p>
+                    <div id="requirements-list"></div>
+                    <button class="btn btn-secondary" style="margin-top: 10px;" onclick="addRequirement()" id="btn-add-requirement">+ Add Requirement</button>
+                </div>
+
+                <button class="btn" onclick="saveRequirementsWithFeedback()" id="btn-save-requirements">💾 Save Requirements</button>
+                <p style="margin-top: 10px; font-size: 13px; color: #666; text-align: center;" id="requirements-applied">
+                    These requirements will be applied when you generate a new weekly plan
+                </p>
+            </div>
+        </div>
+        
+        <!-- Language Switcher and Sign Out Button at Bottom -->
+        <div style="padding: 20px; border-top: 1px solid #e0e0e0;">
+            <div class="language-switcher">
+                <button class="lang-btn" id="lang-en" onclick="switchLanguage('en')">🇬🇧 English</button>
+                <button class="lang-btn" id="lang-pl" onclick="switchLanguage('pl')">🇵🇱 Polski</button>
+            </div>
+            <button class="btn btn-secondary" onclick="signOut()" style="width: 100%; background: #ef4444;" id="btn-sign-out">
+                🚪 Sign Out
+            </button>
+        </div>
+    </div>
+
+    <!-- Meal Detail Modal -->
+    <div id="meal-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-meal-name"></h2>
+                <button class="close-btn" onclick="closeMealModal()">&times;</button>
+            </div>
+            <div id="modal-meal-content"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentFilter = 'all';
+        let currentTypeFilter = 'all';
+        let currentSourceFilter = 'all';
+        let searchQuery = '';
+        let mealLibrary = [];
+        let weeklyPlan = [];
+        let shoppingList = [];
+        let requirements = [
+            'At least 1 pork belly meal',
+            'At least 1 fish meal',
+            'At least 1 chicken meal',
+            'At least 1 pasta meal'
+        ];
+
+        // Language support
+        let currentLanguage = localStorage.getItem('app-language') || 'en';
+
+        let translations = {
+            en: {},
+            pl: {}
+        };
+
+        // Load translations from Google Sheets
+        async function loadTranslations() {
+            try {
+                const data = await readSheet('Translations');
+                if (data && data.length > 1) {
+                    data.slice(1).forEach(row => {
+                        const key = row[0];
+                        if (key && row[1]) {
+                            translations.en[key] = row[1];
+                            translations.pl[key] = row[2] || row[1];
+                        }
+                    });
+                    console.log('✓ Loaded', Object.keys(translations.en).length, 'translations');
+                    
+                    // UPDATE UI WITH CORRECT LANGUAGE AFTER TRANSLATIONS LOAD
+                    updateUILanguage();
+                    
+                    return true;
+                }
+                console.warn('No translations found in Google Sheets');
+                return false;
+            } catch (error) {
+                console.error('Error loading translations:', error);
+                showSaveNotification('Error loading translations', true);
+                return false;
+            }
+        }
+
+        function updateUILanguage() {
+            // Helper function to safely update an element
+            const safeUpdate = (id, property, value) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    if (property === 'textContent') {
+                        element.textContent = value;
+                    } else if (property === 'innerHTML') {
+                        element.innerHTML = value;
+                    } else if (property === 'placeholder') {
+                        element.placeholder = value;
+                    }
+                } else {
+                    console.warn(`Element not found: ${id}`);
+                }
+            };
+            
+            // Update static UI text - Header
+            safeUpdate('app-title', 'textContent', `🍽️ ${t('appTitle')}`);
+            safeUpdate('app-subtitle', 'textContent', t('appSubtitle'));
+            safeUpdate('tab-weekly', 'innerHTML', `📅 ${t('thisWeek')}`);
+            safeUpdate('tab-shopping', 'innerHTML', `🛒 ${t('shoppingList')}`);
+            safeUpdate('tab-library', 'innerHTML', `📚 ${t('mealLibrary')}`);
+            safeUpdate('tab-requirements', 'innerHTML', `⚙️ ${t('requirements')}`);
+            safeUpdate('shopping-list-title', 'textContent', t('shoppingListFor'));
+            
+            safeUpdate('weekly-plan-title', 'textContent', t('yourWeeklyPlan'));
+            safeUpdate('btn-generate-week', 'textContent', t('generateNewWeek'));
+            safeUpdate('btn-create-custom', 'textContent', t('createCustomWeek'));
+            safeUpdate('btn-sign-out', 'innerHTML', `🚪 ${t('signOut')}`);
+            safeUpdate('meal-search', 'placeholder', t('searchByName'));
+            safeUpdate('btn-add-custom-meal', 'textContent', t('addCustomMeal'));
+            
+            safeUpdate('filter-rating-label', 'textContent', t('filterByRating'));
+            safeUpdate('filter-all-meals', 'textContent', t('allMeals'));
+            safeUpdate('filter-favorites', 'textContent', t('favorites'));
+            safeUpdate('filter-good', 'textContent', t('good'));
+            safeUpdate('filter-avoid', 'textContent', t('avoid'));
+            
+            safeUpdate('filter-type-label', 'textContent', t('filterByMealType'));
+            safeUpdate('filter-all-types', 'textContent', t('allTypes'));
+            safeUpdate('filter-breakfast', 'textContent', t('breakfastFilter'));
+            safeUpdate('filter-lunch', 'textContent', t('lunchFilter'));
+            safeUpdate('filter-dinner', 'textContent', t('dinnerFilter'));
+            
+            safeUpdate('filter-source-label', 'textContent', t('filterBySource'));
+            safeUpdate('filter-all-sources', 'textContent', t('allMeals'));
+            safeUpdate('filter-default', 'textContent', t('defaultMeals'));
+            safeUpdate('filter-custom', 'textContent', t('customMeals'));
+            
+            // Meal Library
+            safeUpdate('meal-library-title', 'textContent', t('mealLibrary'));
+            
+            // Requirements Section
+            safeUpdate('requirements-title', 'textContent', t('mealPlanRequirements'));
+            safeUpdate('requirements-description', 'textContent', t('requirementsDescription'));
+            safeUpdate('weekly-requirements-label', 'textContent', t('weeklyRequirements'));
+            safeUpdate('add-remove-requirements', 'textContent', t('addRemoveRequirements'));
+            safeUpdate('btn-add-requirement', 'textContent', t('addRequirement'));
+            safeUpdate('btn-save-requirements', 'textContent', t('saveRequirements'));
+            safeUpdate('requirements-applied', 'textContent', t('requirementsApplied'));
+            
+            console.log('✓ UI language updated to:', currentLanguage);
+        }
+
+        function t(key) {
+            return translations[currentLanguage][key] || key;
+        }
+
+        function translateIngredient(ingredientName) {
+            // Convert ingredient name to key format (lowercase, replace spaces with underscores)
+            const key = ingredientName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+            
+            // Try to get translation, fallback to original name if not found
+            const translated = t(key);
+            
+            // If translation returns the key itself (not found), return original name
+            if (translated === key) {
+                return ingredientName;
+            }
+            
+            return translated;
+        }
+
+        function getMealField(meal, fieldName) {
+            // Safety check - make sure meal exists
+            if (!meal) return '';
+            
+            // If in Polish mode and Polish field exists, use it
+            if (currentLanguage === 'pl' && meal[fieldName + '_pl']) {
+                return meal[fieldName + '_pl'];
+            }
+            // Otherwise use English field
+            return meal[fieldName] || '';
+        }
+
+        function findMealByName(name) {
+            if (!name) return { name: '' };
+            return mealLibrary.find(m => m.name === name) || { name: name };
+        }
+
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('app-language', lang);
+            
+            // Update language button states
+            document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+            document.getElementById('lang-pl').classList.toggle('active', lang === 'pl');
+            
+            // Update all UI text
+            updateUILanguage();
+            
+            // Re-render dynamic content
+            renderAll();
+        }
+
+        // Track which meals are custom (user-added)
+        const customMealIds = new Set();
+
+        // Google Sheets Configuration
+        const GOOGLE_SHEETS_CONFIG = {
+            clientId: '135516292945-9dk8d2e7e74rqv0k6dtehm8sk0m33357.apps.googleusercontent.com',
+            apiKey: 'AIzaSyDpT-eLPP4tT6gmVHG2n85Cv125tUFPYaY',
+            spreadsheetId: '1mqXttUW6CKGUivUxTPZNCY1BwqpjEFRCK5JtNUOMUKM',
+            discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+            scopes: 'https://www.googleapis.com/auth/spreadsheets'
+        };
+
+        let gapiLoaded = false;
+        let gisLoaded = false;
+        let tokenClient;
+        let accessToken = null;
+
+        // Check for stored token on load
+        function loadStoredToken() {
+            const stored = localStorage.getItem('google_access_token');
+            const expiry = localStorage.getItem('google_token_expiry');
+            
+            if (stored && expiry) {
+                const expiryTime = parseInt(expiry);
+                const now = Date.now();
+                
+                // Token is still valid (with 5 minute buffer)
+                if (now < expiryTime - (5 * 60 * 1000)) {
+                    accessToken = stored;
+                    gapi.client.setToken({ access_token: stored });
+                    console.log('Using cached access token');
+                    return true;
+                }
+            }
+            
+            // Check if we have authorization to get a new token silently
+            const hasAuth = localStorage.getItem('google_authorized');
+            return hasAuth === 'true';
+        }
+
+        // Store token in localStorage
+        function storeToken(token, expiresIn) {
+            localStorage.setItem('google_access_token', token);
+            // expiresIn is in seconds, convert to milliseconds and add to current time
+            const expiryTime = Date.now() + (expiresIn * 1000);
+            localStorage.setItem('google_token_expiry', expiryTime.toString());
+            localStorage.setItem('google_authorized', 'true');
+        }
+
+        // Load Google API and Identity Services
+        function loadGoogleAPIs() {
+            return new Promise((resolve) => {
+                const gapiScript = document.createElement('script');
+                gapiScript.src = 'https://apis.google.com/js/api.js';
+                gapiScript.onload = () => {
+                    gapi.load('client', async () => {
+                        await gapi.client.init({
+                            apiKey: GOOGLE_SHEETS_CONFIG.apiKey,
+                            discoveryDocs: GOOGLE_SHEETS_CONFIG.discoveryDocs,
+                        });
+                        gapiLoaded = true;
+                        maybeEnableButtons();
+                    });
+                };
+                document.head.appendChild(gapiScript);
+
+                const gisScript = document.createElement('script');
+                gisScript.src = 'https://accounts.google.com/gsi/client';
+                gisScript.onload = () => {
+                    tokenClient = google.accounts.oauth2.initTokenClient({
+                        client_id: GOOGLE_SHEETS_CONFIG.clientId,
+                        scope: GOOGLE_SHEETS_CONFIG.scopes,
+                        callback: '', // defined later
+                    });
+                    gisLoaded = true;
+                    maybeEnableButtons();
+                };
+                document.head.appendChild(gisScript);
+
+                resolve();
+            });
+        }
+
+        function maybeEnableButtons() {
+            if (gapiLoaded && gisLoaded) {
+                console.log('Google APIs loaded successfully');
+            }
+        }
+
+        // Request access token
+        function getAccessToken() {
+            return new Promise((resolve, reject) => {
+                // Try to use stored token first
+                const hasValidToken = loadStoredToken();
+                if (hasValidToken && accessToken) {
+                    resolve(accessToken);
+                    return;
+                }
+
+                tokenClient.callback = async (response) => {
+                    if (response.error !== undefined) {
+                        console.error('Token error:', response);
+                        // Clear stored auth on error
+                        localStorage.removeItem('google_authorized');
+                        reject(response);
+                        return;
+                    }
+                    
+                    accessToken = response.access_token;
+                    
+                    // Store the token
+                    storeToken(accessToken, response.expires_in || 3600);
+                    
+                    console.log('New access token obtained');
+                    resolve(accessToken);
+                };
+
+                // Check if user has previously authorized
+                const wasAuthorized = localStorage.getItem('google_authorized') === 'true';
+                
+                // Request token - prompt only if never authorized before
+                tokenClient.requestAccessToken({ 
+                    prompt: wasAuthorized ? '' : 'consent'
+                });
+            });
+        }
+
+        // Sign out function
+        function signOut() {
+            if (confirm('Are you sure you want to sign out? You will need to sign in again next time.')) {
+                // Clear tokens
+                const token = gapi.client.getToken();
+                if (token !== null) {
+                    google.accounts.oauth2.revoke(token.access_token);
+                    gapi.client.setToken('');
+                }
+                
+                // Clear stored data
+                localStorage.removeItem('google_access_token');
+                localStorage.removeItem('google_token_expiry');
+                localStorage.removeItem('google_authorized');
+                accessToken = null;
+                
+                showSaveNotification('Signed out successfully');
+                
+                // Reload page
+                setTimeout(() => location.reload(), 1000);
+            }
+        }
+
+        // Google Sheets API Helper Functions
+        async function readSheet(sheetName, range = '') {
+            try {
+                await getAccessToken();
+                
+                const fullRange = range ? `${sheetName}!${range}` : sheetName;
+                const response = await gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: GOOGLE_SHEETS_CONFIG.spreadsheetId,
+                    range: fullRange,
+                });
+                
+                return response.result.values || [];
+            } catch (error) {
+                console.error('Error reading sheet:', error);
+                showSaveNotification('Error loading data from Google Sheets', true);
+                throw error;
+            }
+        }
+
+        async function writeSheet(sheetName, values, range = '') {
+            try {
+                await getAccessToken();
+                
+                const fullRange = range ? `${sheetName}!${range}` : sheetName;
+                const response = await gapi.client.sheets.spreadsheets.values.update({
+                    spreadsheetId: GOOGLE_SHEETS_CONFIG.spreadsheetId,
+                    range: fullRange,
+                    valueInputOption: 'RAW',
+                    resource: {
+                        values: values
+                    }
+                });
+                
+                return response.result;
+            } catch (error) {
+                console.error('Error writing sheet:', error);
+                showSaveNotification('Error saving to Google Sheets', true);
+                throw error;
+            }
+        }
+
+        async function appendSheet(sheetName, values) {
+            try {
+                await getAccessToken();
+                
+                const response = await gapi.client.sheets.spreadsheets.values.append({
+                    spreadsheetId: GOOGLE_SHEETS_CONFIG.spreadsheetId,
+                    range: sheetName,
+                    valueInputOption: 'RAW',
+                    resource: {
+                        values: values
+                    }
+                });
+                
+                return response.result;
+            } catch (error) {
+                console.error('Error appending to sheet:', error);
+                showSaveNotification('Error saving to Google Sheets', true);
+                throw error;
+            }
+        }
+
+        async function clearSheet(sheetName, range = '') {
+            try {
+                await getAccessToken();
+                
+                const fullRange = range ? `${sheetName}!${range}` : sheetName;
+                const response = await gapi.client.sheets.spreadsheets.values.clear({
+                    spreadsheetId: GOOGLE_SHEETS_CONFIG.spreadsheetId,
+                    range: fullRange,
+                });
+                
+                return response.result;
+            } catch (error) {
+                console.error('Error clearing sheet:', error);
+                throw error;
+            }
+        }
+
+        // Ingredient alternatives database
+        const ingredientAlternatives = {
+            'pork belly': ['Pork shoulder', 'Bacon', 'Pork chops', 'Ham'],
+            'salmon': ['Cod', 'Haddock', 'Trout', 'Sea bass', 'Tuna'],
+            'chicken breast': ['Chicken thighs', 'Turkey breast', 'Pork tenderloin'],
+            'beef strips': ['Chicken strips', 'Pork strips', 'Lamb strips', 'Tofu strips'],
+            'lamb shoulder': ['Beef brisket', 'Pork shoulder', 'Lamb leg', 'Beef short ribs'],
+            'whole chicken': ['Chicken pieces', 'Cornish hen', 'Turkey breast', 'Chicken thighs and drumsticks'],
+            'ground beef': ['Ground turkey', 'Ground chicken', 'Ground lamb', 'Ground pork', 'Plant-based mince'],
+            'eggs': ['Egg substitute', 'Silken tofu (for scrambles)', 'Chickpea flour (for baking)'],
+            'milk': ['Oat milk', 'Almond milk', 'Soy milk', 'Coconut milk'],
+            'butter': ['Margarine', 'Coconut oil', 'Olive oil', 'Ghee'],
+            'cheese': ['Nutritional yeast', 'Vegan cheese', 'Cottage cheese'],
+            'cream': ['Coconut cream', 'Cashew cream', 'Half-and-half', 'Full-fat yogurt'],
+            'greek yogurt': ['Regular yogurt', 'Skyr', 'Coconut yogurt', 'Sour cream'],
+            'pasta': ['Rice noodles', 'Zucchini noodles', 'Whole wheat pasta', 'Gluten-free pasta'],
+            'rice': ['Quinoa', 'Couscous', 'Bulgur', 'Cauliflower rice'],
+            'bread': ['Gluten-free bread', 'Whole wheat bread', 'Sourdough', 'Pita bread'],
+            'oats': ['Quinoa flakes', 'Rice flakes', 'Buckwheat flakes'],
+            'couscous': ['Bulgur', 'Quinoa', 'Rice', 'Orzo pasta'],
+            'tortillas': ['Lettuce wraps', 'Naan bread', 'Pita bread', 'Rice paper wraps'],
+            'zucchini': ['Yellow squash', 'Cucumber', 'Eggplant', 'Green beans'],
+            'carrot': ['Parsnip', 'Sweet potato', 'Butternut squash', 'Beets'],
+            'red pepper': ['Yellow pepper', 'Orange pepper', 'Green pepper', 'Tomatoes'],
+            'mushrooms': ['Eggplant', 'Zucchini', 'Tofu', 'Extra vegetables'],
+            'sweet potato': ['Regular potato', 'Butternut squash', 'Pumpkin', 'Carrot'],
+            'potato': ['Sweet potato', 'Cauliflower', 'Parsnip', 'Turnip'],
+            'green beans': ['Asparagus', 'Snow peas', 'Sugar snap peas', 'Broccoli'],
+            'parsnip': ['Carrot', 'Turnip', 'White sweet potato', 'Potato'],
+            'pumpkin': ['Butternut squash', 'Sweet potato', 'Carrot', 'Acorn squash'],
+            'spinach': ['Kale', 'Arugula', 'Swiss chard', 'Bok choy'],
+            'tomato': ['Canned tomatoes', 'Sun-dried tomatoes', 'Red pepper', 'Tomato paste'],
+            'onion': ['Shallots', 'Leeks', 'Spring onions', 'Garlic'],
+            'celery': ['Fennel', 'Bok choy', 'Green pepper', 'Cucumber'],
+            'banana': ['Applesauce', 'Mashed sweet potato (in baking)', 'Avocado (in baking)'],
+            'berries': ['Any mixed berries', 'Frozen berries', 'Chopped fruit', 'Dried fruit (rehydrated)'],
+            'apple': ['Pear', 'Peach', 'Apricot', 'Mango'],
+            'avocado': ['Hummus (for toast)', 'Mashed peas', 'Cream cheese'],
+            'lemon': ['Lime', 'White wine vinegar', 'Apple cider vinegar'],
+            'olive oil': ['Avocado oil', 'Grapeseed oil', 'Vegetable oil', 'Butter'],
+            'chicken stock': ['Vegetable stock', 'Beef stock', 'Bouillon cubes + water'],
+            'chickpeas': ['White beans', 'Lentils', 'Black beans', 'Tofu'],
+            'lentils': ['Chickpeas', 'Split peas', 'Black beans', 'Quinoa'],
+            'garlic': ['Garlic powder', 'Onion', 'Shallots', 'Garlic paste'],
+            'basil': ['Oregano', 'Parsley', 'Cilantro', 'Thyme'],
+            'rosemary': ['Thyme', 'Sage', 'Oregano'],
+            'curry powder': ['Garam masala', 'Cumin + coriander + turmeric', 'Thai curry paste'],
+            'soy sauce': ['Tamari', 'Coconut aminos', 'Worcestershire sauce', 'Fish sauce']
+        };
+
+        const initialMeals = [
+            {
+                id: 'scrambled-eggs',
+                name: 'Scrambled Eggs with Toast Fingers',
+                type: 'breakfast',
+                difficulty: 'easy',
+                prepTime: '10 min',
+                protein: 'eggs',
+                ingredients: [
+                    { name: 'eggs', quantity: 4, unit: 'count' },
+                    { name: 'milk', quantity: 2, unit: 'tbsp' },
+                    { name: 'butter', quantity: 1, unit: 'count' },
+                    { name: 'bread', quantity: 4, unit: 'slices' }
+                ],
+                steps: [
+                    'Crack 4 eggs into a bowl and add 2 tablespoons of milk',
+                    'Whisk together with a fork until well combined and slightly frothy',
+                    'Heat a non-stick pan over low heat and add a small knob of butter (about 1 tsp)',
+                    'Once butter is melted and foaming, pour in the egg mixture',
+                    'Let sit for 20 seconds, then gently push eggs from edge to center with a spatula',
+                    'Continue cooking, stirring gently every 30 seconds until eggs are softly set (about 3-4 minutes)',
+                    'Remove from heat while still slightly wet as they will continue cooking',
+                    'Toast 4 slices of bread until golden',
+                    'Cut toast into finger-width strips for baby to hold',
+                    'Serve eggs immediately while warm - no salt for baby, adults can season their own portions'
+                ],
+                utensils: ['Pan', 'Spatula', 'Toaster'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'No added salt. Cut toast into finger-sized strips for easy grabbing.'
+            },
+            {
+                id: 'banana-pancakes',
+                name: 'Banana Oat Pancakes',
+                type: 'breakfast',
+                difficulty: 'easy',
+                prepTime: '15 min',
+                protein: 'eggs',
+                ingredients: [
+                    { name: 'bananas', quantity: 2, unit: 'count' },
+                    { name: 'oats', quantity: 1, unit: 'cup' },
+                    { name: 'eggs', quantity: 2, unit: 'count' },
+                    { name: 'milk', quantity: 0.5, unit: 'cup' }
+                ],
+                steps: [
+                    'Peel 2 ripe bananas (the riper the better - brown spots are good) and break into chunks',
+                    'Add bananas, 1 cup rolled oats, 2 eggs, and 1/2 cup milk to a blender',
+                    'Blend on high speed for 30-45 seconds until completely smooth with no oat chunks remaining',
+                    'Let the batter rest for 5 minutes to thicken slightly',
+                    'Heat a non-stick pan or griddle over medium heat',
+                    'Add a small knob of butter and let it melt, swirling to coat the pan',
+                    'Pour small circles of batter (about 1/4 cup each) onto the hot pan - make them smaller for baby',
+                    'Cook for 2-3 minutes until bubbles form on the surface and edges look set',
+                    'Flip carefully with a spatula and cook for another 2 minutes until golden brown',
+                    'Remove to a plate and repeat with remaining batter',
+                    'Meanwhile, mash some fresh or frozen berries with a fork until mushy',
+                    'For baby: serve pancakes in small pieces with mashed berries on top (naturally sweet, no added sugar needed)',
+                    'Adults can add a drizzle of maple syrup or honey if desired'
+                ],
+                utensils: ['Blender', 'Pan', 'Spatula'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Naturally sweet from bananas. Cut into small pieces for baby.'
+            },
+            {
+                id: 'pork-belly',
+                name: 'Crispy Pork Belly with Sweet Potato Mash',
+                type: 'dinner',
+                difficulty: 'medium',
+                prepTime: '90 min',
+                protein: 'pork',
+                ingredients: [
+                    { name: 'pork belly', quantity: 500, unit: 'g' },
+                    { name: 'sweet potatoes', quantity: 4, unit: 'count' },
+                    { name: 'butter', quantity: 1, unit: 'count' },
+                    { name: 'milk', quantity: 1, unit: 'tbsp' }
+                ],
+                steps: [
+                    'Pat 500g pork belly dry with paper towels',
+                    'Using a sharp knife, score the skin in a crosshatch pattern (cuts about 1cm apart, cutting through skin but not into meat)',
+                    'For adult portions only: rub salt generously into the scored skin',
+                    'Place pork skin-side up in a roasting pan',
+                    'Roast at 220°C (fan) for 30 minutes to crisp the skin',
+                    'Reduce temperature to 180°C and continue roasting for 40 minutes until meat is cooked through',
+                    'Meanwhile, peel and dice 4 sweet potatoes into chunks',
+                    'Boil sweet potatoes in water for 15-20 minutes until very soft',
+                    'Drain and mash with a knob of butter and a splash of milk until smooth',
+                    'Remove pork from oven and let rest for 5 minutes',
+                    'For baby: carefully cut small pieces of meat, removing all crispy skin and any fatty parts',
+                    'For adults: slice thicker pieces keeping the crispy crackling on top',
+                    'Adults can add extra seasoning, gravy, or apple sauce to their portions'
+                ],
+                utensils: ['Roasting pan', 'Pot', 'Masher', 'Sharp knife'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Remove crispy skin for baby. Cut meat very small. Sweet potato is naturally sweet and nutritious.',
+                advancePrep: {
+                    defrost: 'Defrost pork belly in fridge 24 hours before cooking',
+                    hoursNeeded: 24
+                }
+            },
+            {
+                id: 'baked-salmon',
+                name: 'Baked Salmon with Roasted Vegetables',
+                type: 'dinner',
+                difficulty: 'easy',
+                prepTime: '30 min',
+                protein: 'fish',
+                ingredients: [
+                    { name: 'salmon fillets', quantity: 3, unit: 'count' },
+                    { name: 'zucchini', quantity: 2, unit: 'count' },
+                    { name: 'carrots', quantity: 1, unit: 'count' },
+                    { name: 'red pepper', quantity: 1, unit: 'count' },
+                    { name: 'olive oil', quantity: 2, unit: 'tbsp' }
+                ],
+                steps: [
+                    'Preheat oven to 180°C (fan)',
+                    'Line a large baking tray with parchment paper or foil',
+                    'Wash and dice vegetables: 2 zucchini into 2cm chunks, 1 carrot into thin rounds, 1 red pepper into strips',
+                    'Place all vegetables in a bowl and drizzle with 2 tablespoons olive oil, toss to coat',
+                    'Spread vegetables evenly on one side of the baking tray',
+                    'Place 3 salmon fillets skin-side down on the other side of the tray',
+                    'Lightly brush salmon with olive oil',
+                    'Bake for 18-20 minutes until salmon is opaque and flakes easily with a fork',
+                    'Remove from oven and let cool slightly',
+                    'IMPORTANT: Check salmon very carefully for bones by running your fingers over the flesh - remove any you find',
+                    'For baby: flake salmon into very small pieces, removing skin, and serve with soft roasted vegetables',
+                    'For adults: serve whole fillets and season with lemon juice, black pepper, and fresh herbs like dill or parsley'
+                ],
+                utensils: ['Baking tray', 'Knife'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'VERY IMPORTANT: Check for all bones. Flake salmon into very small pieces for baby.',
+                advancePrep: {
+                    defrost: 'Defrost salmon in fridge 12-24 hours before cooking',
+                    hoursNeeded: 12
+                }
+            },
+            {
+                id: 'chicken-pasta',
+                name: 'Creamy Chicken & Mushroom Pasta',
+                type: 'dinner',
+                difficulty: 'easy',
+                prepTime: '35 min',
+                protein: 'chicken',
+                ingredients: [
+                    { name: 'pasta', quantity: 400, unit: 'g' },
+                    { name: 'chicken breasts', quantity: 2, unit: 'count' },
+                    { name: 'mushrooms', quantity: 200, unit: 'g' },
+                    { name: 'cream', quantity: 200, unit: 'ml' },
+                    { name: 'garlic', quantity: 2, unit: 'cloves' }
+                ],
+                steps: [
+                    'Fill a large pot with water and bring to a rolling boil',
+                    'Add 400g pasta and cook according to package directions (usually 10-12 minutes) - for Thermomix: 10 min/100°C/reverse/speed 1',
+                    'While pasta cooks, dice 2 chicken breasts into small 1-2cm cubes',
+                    'Slice 200g mushrooms thinly',
+                    'Heat a large pan over medium heat with a drizzle of olive oil',
+                    'Add diced chicken to the pan and cook for 6-8 minutes, stirring occasionally, until golden and cooked through (no pink inside)',
+                    'Add sliced mushrooms to the chicken and cook for 4-5 minutes until mushrooms are soft and any liquid has evaporated',
+                    'Pour in 200ml cream and stir well',
+                    'Let cream heat through for 2-3 minutes on low heat, stirring occasionally',
+                    'Drain the cooked pasta, reserving a cup of pasta water',
+                    'Add drained pasta to the pan with chicken and mushroom cream sauce',
+                    'Toss everything together, adding a splash of pasta water if needed to loosen the sauce',
+                    'For baby: serve a portion with plain cream sauce (no garlic or pepper)',
+                    'For adults: add 1-2 crushed garlic cloves to the cream when heating, and season with black pepper and fresh parsley'
+                ],
+                utensils: ['Large pot', 'Pan', 'Wooden spoon'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Cut chicken very small. Use plain cream sauce for baby, add garlic to adult portions after.',
+                advancePrep: {
+                    defrost: 'Defrost chicken breasts in fridge 12 hours before cooking if frozen',
+                    hoursNeeded: 12
+                }
+            },
+            {
+                id: 'honey-chicken',
+                name: 'Honey Glazed Chicken with Couscous',
+                type: 'dinner',
+                difficulty: 'easy',
+                prepTime: '30 min',
+                protein: 'chicken',
+                ingredients: [
+                    { name: 'chicken breasts', quantity: 3, unit: 'count' },
+                    { name: 'couscous', quantity: 1.5, unit: 'cup' },
+                    { name: 'chicken stock', quantity: 2, unit: 'cup' },
+                    { name: 'mixed vegetables', quantity: 300, unit: 'g' },
+                    { name: 'honey', quantity: 2, unit: 'tbsp' }
+                ],
+                steps: [
+                    'Preheat oven to 180°C (fan)',
+                    'Remove 3 chicken breasts from packaging and pat dry with paper towels',
+                    'Cut chicken breasts into bite-sized pieces (about 2-3cm cubes)',
+                    'Place chicken pieces on a baking tray lined with parchment paper, spacing them out',
+                    'Bake for 20-25 minutes, turning once halfway through, until cooked through (juices run clear, no pink inside)',
+                    'While chicken bakes, prepare couscous: measure 1.5 cups couscous into a heatproof bowl',
+                    'Boil 2 cups chicken stock (or water)',
+                    'Pour hot stock over couscous, immediately cover bowl tightly with a plate or plastic wrap',
+                    'Let stand for 5 minutes without touching',
+                    'After 5 minutes, remove cover and fluff couscous with a fork to separate the grains',
+                    'Steam or roast your choice of vegetables until tender',
+                    'Remove chicken from oven',
+                    'CRITICAL: Serve baby portion plain immediately - NO HONEY for babies under 1 year old (risk of botulism)',
+                    'For adults only: brush honey glaze on their portions and return to oven for 2-3 minutes',
+                    'Serve chicken over couscous with vegetables on the side'
+                ],
+                utensils: ['Baking dish', 'Bowl', 'Fork'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'CRITICAL: NO HONEY for babies under 1 year old. Serve chicken plain for baby.',
+                advancePrep: {
+                    defrost: 'Defrost chicken breasts in fridge 12 hours before cooking if frozen',
+                    hoursNeeded: 12
+                }
+            },
+            {
+                id: 'beef-stirfry',
+                name: 'Beef & Vegetable Stir Fry',
+                type: 'dinner',
+                difficulty: 'medium',
+                prepTime: '35 min',
+                protein: 'beef',
+                ingredients: [
+                    { name: 'beef strips', quantity: 400, unit: 'g' },
+                    { name: 'mixed vegetables', quantity: 300, unit: 'g' },
+                    { name: 'rice', quantity: 1.5, unit: 'cup' },
+                    { name: 'soy sauce', quantity: 2, unit: 'tbsp' },
+                    { name: 'vegetable oil', quantity: 2, unit: 'tbsp' }
+                ],
+                steps: [
+                    'Cook rice: use 1.5 cups rice with 3 cups water in rice cooker or Thermomix rice mode (typically 12-15 minutes)',
+                    'While rice cooks, prepare vegetables: wash and dice into small bite-sized pieces (smaller for baby)',
+                    'Pat beef strips dry with paper towel (this helps them brown nicely)',
+                    'Heat a wok or large pan over high heat until very hot',
+                    'Add 1 tablespoon vegetable oil and swirl to coat the pan',
+                    'Add beef strips in a single layer (work in batches if needed to avoid overcrowding)',
+                    'Cook beef without stirring for 1-2 minutes to get a nice sear',
+                    'Flip and cook other side for 1-2 minutes until browned but still slightly pink in center',
+                    'Remove beef to a plate and set aside',
+                    'Add another tablespoon of oil to the pan',
+                    'Add all vegetables and stir-fry for 4-6 minutes until tender-crisp (longer for baby to ensure vegetables are soft)',
+                    'Return beef to the pan and toss with vegetables for 1 minute to heat through',
+                    'IMPORTANT: Remove baby\'s portion now before adding any sauce',
+                    'For baby: serve beef (cut into very small pieces) and vegetables plain over rice',
+                    'For adults: add 2-3 tablespoons soy sauce, 1 teaspoon sesame oil, and optional chili flakes to the remaining stir fry, toss for 30 seconds, then serve over rice'
+                ],
+                utensils: ['Wok or large pan', 'Knife', 'Cutting board'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Cut beef and veggies very small. Serve baby portion plain without any soy sauce or salt.',
+                advancePrep: {
+                    defrost: 'Defrost beef strips in fridge 12 hours before cooking',
+                    hoursNeeded: 12
+                }
+            },
+            {
+                id: 'slow-lamb',
+                name: 'Slow Cooked Lamb with Root Vegetables',
+                type: 'dinner',
+                difficulty: 'medium',
+                prepTime: '90 min',
+                protein: 'lamb',
+                ingredients: [
+                    { name: 'lamb shoulder', quantity: 600, unit: 'g' },
+                    { name: 'carrots', quantity: 3, unit: 'count' },
+                    { name: 'parsnips', quantity: 2, unit: 'count' },
+                    { name: 'potatoes', quantity: 4, unit: 'count' },
+                    { name: 'stock', quantity: 500, unit: 'ml' }
+                ],
+                steps: [
+                    'Cut lamb and vegetables into chunks',
+                    'Place all in slow cooker with stock',
+                    'Cook on low 6-8 hours (or Thermomix: 90 min at 90°C)',
+                    'Shred lamb very finely for baby',
+                    'Mash some vegetables for easier eating',
+                    'Season adult portions with rosemary and pepper'
+                ],
+                utensils: ['Slow cooker or Thermomix', 'Knife'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Shred lamb very fine. Mash vegetables. Ensure no large chunks for choking safety.',
+                advancePrep: {
+                    defrost: 'Defrost lamb shoulder in fridge 24 hours before cooking',
+                    hoursNeeded: 24
+                }
+            },
+            {
+                id: 'roast-chicken',
+                name: 'Roast Chicken with Gravy & Veggies',
+                type: 'dinner',
+                difficulty: 'medium',
+                prepTime: '60 min',
+                protein: 'chicken',
+                ingredients: [
+                    { name: 'whole chicken', quantity: 1, unit: 'count' },
+                    { name: 'potatoes', quantity: 6, unit: 'count' },
+                    { name: 'carrots', quantity: 4, unit: 'count' },
+                    { name: 'green beans', quantity: 200, unit: 'g' },
+                    { name: 'chicken stock', quantity: 200, unit: 'ml' },
+                    { name: 'olive oil', quantity: 2, unit: 'tbsp' }
+                ],
+                steps: [
+                    'Preheat oven to 190°C (fan)',
+                    'Remove chicken from packaging and pat dry with paper towels',
+                    'Weigh the chicken and calculate cooking time: 20 minutes per 500g, plus an extra 20 minutes (e.g., 1.5kg chicken = 60 + 20 = 80 minutes)',
+                    'Place chicken breast-side up in a roasting pan',
+                    'Drizzle with olive oil and for adults only, season the skin',
+                    'Peel potatoes and carrots, cut into large chunks',
+                    'Place vegetables around the chicken in the roasting pan, drizzle with oil',
+                    'Roast in the oven according to your calculated time',
+                    'Check chicken is cooked by piercing the thickest part of the thigh - juices should run clear',
+                    'About 10 minutes before chicken is done, bring a pot of water to boil and add trimmed green beans',
+                    'Boil green beans for 6-8 minutes until tender',
+                    'Remove chicken from oven and let rest for 10 minutes (this keeps it juicy)',
+                    'Pour pan juices into a small pot, skim off excess fat if desired',
+                    'Add 200ml chicken stock to the juices and bring to a simmer for 3-4 minutes to make gravy',
+                    'For baby: remove all skin from chicken, shred white and dark meat very finely with two forks, checking for any small bones',
+                    'Cut vegetables into small pieces for baby',
+                    'Serve baby portion with a small amount of mild gravy',
+                    'Adults can season gravy with additional herbs and serve with crispy skin'
+                ],
+                utensils: ['Roasting pan', 'Pot', 'Carving knife'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Remove all skin from chicken. Shred meat very fine. Cut all vegetables small.',
+                advancePrep: {
+                    defrost: 'Defrost whole chicken in fridge 24 hours before cooking',
+                    hoursNeeded: 24
+                }
+            },
+            {
+                id: 'chicken-rice-bowl',
+                name: 'Chicken & Veggie Rice Bowl',
+                type: 'lunch',
+                difficulty: 'easy',
+                prepTime: '25 min',
+                protein: 'chicken',
+                ingredients: [
+                    { name: 'chicken breasts', quantity: 2, unit: 'count' },
+                    { name: 'rice', quantity: 1, unit: 'cup' },
+                    { name: 'mixed vegetables', quantity: 300, unit: 'g' },
+                    { name: 'olive oil', quantity: 2, unit: 'tbsp' }
+                ],
+                steps: [
+                    'Cook rice in Thermomix or rice cooker',
+                    'Dice chicken into small pieces',
+                    'Cook chicken in pan until done',
+                    'Steam or sauté mixed vegetables',
+                    'Combine all in bowls',
+                    'Season adult portions as desired'
+                ],
+                utensils: ['Pan', 'Rice cooker or Thermomix'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Cut chicken and vegetables very small. Serve plain for baby.',
+                advancePrep: {
+                    defrost: 'Defrost chicken breasts in fridge 12 hours before cooking if frozen',
+                    hoursNeeded: 12
+                }
+            },
+            {
+                id: 'quesadilla',
+                name: 'Veggie & Cheese Quesadilla',
+                type: 'lunch',
+                difficulty: 'easy',
+                prepTime: '15 min',
+                protein: 'cheese',
+                ingredients: [
+                    { name: 'tortillas', quantity: 4, unit: 'count' },
+                    { name: 'cheese', quantity: 200, unit: 'g' },
+                    { name: 'bell peppers', quantity: 1, unit: 'count' },
+                    { name: 'zucchini', quantity: 1, unit: 'count' }
+                ],
+                steps: [
+                    'Dice vegetables into very small pieces',
+                    'Place cheese and veggies on half of tortilla',
+                    'Fold tortilla and cook in pan until golden',
+                    'Cut into small strips for baby',
+                    'Add salsa to adult portions if desired'
+                ],
+                utensils: ['Pan', 'Knife'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Cut into finger-sized strips. Ensure cheese is fully melted. Cool before serving.'
+            },
+            {
+                id: 'mini-meatballs',
+                name: 'Mini Meatballs with Pasta',
+                type: 'lunch',
+                difficulty: 'easy',
+                prepTime: '30 min',
+                protein: 'beef',
+                ingredients: [
+                    { name: 'ground beef', quantity: 300, unit: 'g' },
+                    { name: 'eggs', quantity: 1, unit: 'count' },
+                    { name: 'breadcrumbs', quantity: 3, unit: 'tbsp' },
+                    { name: 'pasta', quantity: 300, unit: 'g' },
+                    { name: 'tomato sauce', quantity: 200, unit: 'ml' }
+                ],
+                steps: [
+                    'Mix beef, egg, and breadcrumbs (no salt for baby)',
+                    'Form into very small meatballs',
+                    'Bake at 180°C for 20 minutes',
+                    'Cook pasta according to package',
+                    'Serve with mild tomato sauce',
+                    'Add extra seasoning to adult portions'
+                ],
+                utensils: ['Mixing bowl', 'Baking tray', 'Pot'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Make meatballs very small (marble-sized). Ensure fully cooked. Cut in half for baby.',
+                advancePrep: {
+                    defrost: 'Defrost ground beef in fridge 12 hours before cooking if frozen',
+                    hoursNeeded: 12
+                }
+            },
+            {
+                id: 'lentil-soup',
+                name: 'Lentil & Vegetable Soup',
+                type: 'lunch',
+                difficulty: 'easy',
+                prepTime: '40 min',
+                protein: 'lentils',
+                ingredients: [
+                    { name: 'red lentils', quantity: 1, unit: 'cup' },
+                    { name: 'carrots', quantity: 2, unit: 'count' },
+                    { name: 'celery', quantity: 2, unit: 'stalks' },
+                    { name: 'onion', quantity: 1, unit: 'count' },
+                    { name: 'vegetable stock', quantity: 1, unit: 'l' },
+                    { name: 'olive oil', quantity: 1, unit: 'tbsp' }
+                ],
+                steps: [
+                    'Dice all vegetables small',
+                    'Sauté vegetables in pot (Thermomix: 5 min/100°C/speed 1)',
+                    'Add lentils and stock',
+                    'Simmer 25 minutes until lentils soft',
+                    'Blend partially for baby if needed',
+                    'Season adult portions with spices'
+                ],
+                utensils: ['Large pot or Thermomix'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Can be partially blended for smoother texture. Ensure lentils are very soft.'
+            },
+            {
+                id: 'cheese-omelet',
+                name: 'Cheese & Veggie Omelet',
+                type: 'lunch',
+                difficulty: 'easy',
+                prepTime: '15 min',
+                protein: 'eggs',
+                ingredients: [
+                    { name: 'eggs', quantity: 6, unit: 'count' },
+                    { name: 'cheese', quantity: 100, unit: 'g' },
+                    { name: 'mixed vegetables', quantity: 200, unit: 'g' },
+                    { name: 'milk', quantity: 2, unit: 'tbsp' }
+                ],
+                steps: [
+                    'Whisk eggs with milk',
+                    'Dice vegetables very small',
+                    'Cook vegetables until soft',
+                    'Pour eggs over vegetables',
+                    'Add cheese and fold omelet',
+                    'Cut into small pieces for baby'
+                ],
+                utensils: ['Pan', 'Spatula', 'Whisk'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'No salt. Cut into small pieces. Ensure vegetables are very soft.'
+            },
+            {
+                id: 'pumpkin-curry',
+                name: 'Pumpkin & Chickpea Curry (mild)',
+                type: 'lunch',
+                difficulty: 'medium',
+                prepTime: '35 min',
+                protein: 'chickpeas',
+                ingredients: [
+                    { name: 'pumpkin', quantity: 500, unit: 'g' },
+                    { name: 'chickpeas', quantity: 1, unit: 'can' },
+                    { name: 'coconut milk', quantity: 400, unit: 'ml' },
+                    { name: 'curry powder', quantity: 1, unit: 'tsp' },
+                    { name: 'rice', quantity: 1, unit: 'cup' }
+                ],
+                steps: [
+                    'Dice pumpkin into small cubes',
+                    'Cook rice',
+                    'Sauté pumpkin until starting to soften',
+                    'Add chickpeas, coconut milk, and MILD curry (Thermomix: 20 min/100°C/reverse/speed 1)',
+                    'Cook until pumpkin very soft',
+                    'Serve over rice',
+                    'Add extra spice to adult portions if desired'
+                ],
+                utensils: ['Pot or Thermomix', 'Knife'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Use VERY mild curry powder. Ensure pumpkin is very soft. Can mash some for baby.'
+            },
+            {
+                id: 'tomato-basil-pasta',
+                name: 'Tomato & Basil Pasta',
+                type: 'lunch',
+                difficulty: 'easy',
+                prepTime: '20 min',
+                protein: 'pasta',
+                ingredients: [
+                    { name: 'pasta', quantity: 400, unit: 'g' },
+                    { name: 'tomato sauce', quantity: 400, unit: 'ml' },
+                    { name: 'fresh basil', quantity: 1, unit: 'bunch' },
+                    { name: 'olive oil', quantity: 2, unit: 'tbsp' },
+                    { name: 'parmesan', quantity: 50, unit: 'g' }
+                ],
+                steps: [
+                    'Cook pasta according to package',
+                    'Warm tomato sauce in pan',
+                    'Add torn fresh basil',
+                    'Toss pasta with sauce',
+                    'Serve with grated parmesan on top',
+                    'Add garlic or chili flakes to adult portions'
+                ],
+                utensils: ['Large pot', 'Pan'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Use mild tomato sauce with no added salt. Cut pasta into small pieces if needed.'
+            },
+            {
+                id: 'greek-yogurt-berries',
+                name: 'Greek Yogurt with Mashed Berries',
+                type: 'breakfast',
+                difficulty: 'easy',
+                prepTime: '5 min',
+                protein: 'dairy',
+                ingredients: [
+                    { name: 'greek yogurt', quantity: 400, unit: 'g' },
+                    { name: 'mixed berries', quantity: 200, unit: 'g' },
+                    { name: 'oats', quantity: 0.5, unit: 'cup' }
+                ],
+                steps: [
+                    'Place Greek yogurt in bowl',
+                    'Mash berries with fork',
+                    'Mix berries into yogurt',
+                    'Sprinkle oats on top if using',
+                    'Serve immediately'
+                ],
+                utensils: ['Bowl', 'Fork'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Use full-fat Greek yogurt. Mash berries to avoid choking hazard. No honey.'
+            },
+            {
+                id: 'avocado-toast',
+                name: 'Avocado Toast with Soft Boiled Egg',
+                type: 'breakfast',
+                difficulty: 'easy',
+                prepTime: '10 min',
+                protein: 'eggs',
+                ingredients: [
+                    { name: 'avocados', quantity: 2, unit: 'count' },
+                    { name: 'bread', quantity: 4, unit: 'slices' },
+                    { name: 'eggs', quantity: 4, unit: 'count' }
+                ],
+                steps: [
+                    'Toast bread',
+                    'Boil eggs for 6 minutes for soft yolk',
+                    'Mash avocado',
+                    'Spread avocado on toast',
+                    'Slice egg and place on top',
+                    'Cut into strips for baby'
+                ],
+                utensils: ['Toaster', 'Pot', 'Fork'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'No salt. Cut toast into finger strips. Ensure egg is fully cooked for baby under 1.'
+            },
+            {
+                id: 'porridge-apple',
+                name: 'Porridge with Apple Puree',
+                type: 'breakfast',
+                difficulty: 'easy',
+                prepTime: '15 min',
+                protein: 'oats',
+                ingredients: [
+                    { name: 'oats', quantity: 1, unit: 'cup' },
+                    { name: 'milk', quantity: 2, unit: 'cup' },
+                    { name: 'apples', quantity: 2, unit: 'count' },
+                    { name: 'cinnamon', quantity: 1, unit: 'tsp' }
+                ],
+                steps: [
+                    'Cook oats with milk until creamy (Thermomix: 5 min/90°C/speed 1)',
+                    'Peel and dice apples',
+                    'Cook apples until soft and mash',
+                    'Stir apple puree into porridge',
+                    'Add pinch of cinnamon',
+                    'Cool to appropriate temperature before serving'
+                ],
+                utensils: ['Pot or Thermomix', 'Masher'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'No added sugar. Ensure porridge is not too hot. Naturally sweet from apples.'
+            },
+            {
+                id: 'french-toast',
+                name: 'French Toast Strips',
+                type: 'breakfast',
+                difficulty: 'easy',
+                prepTime: '15 min',
+                protein: 'eggs',
+                ingredients: [
+                    { name: 'bread', quantity: 4, unit: 'slices' },
+                    { name: 'eggs', quantity: 2, unit: 'count' },
+                    { name: 'milk', quantity: 0.25, unit: 'cup' },
+                    { name: 'butter', quantity: 2, unit: 'tbsp' },
+                    { name: 'cinnamon', quantity: 0.5, unit: 'tsp' }
+                ],
+                steps: [
+                    'Whisk eggs, milk, and cinnamon',
+                    'Dip bread slices in egg mixture',
+                    'Cook in buttered pan until golden on both sides',
+                    'Cut into strips for baby',
+                    'Serve with mashed berries or banana'
+                ],
+                utensils: ['Pan', 'Whisk', 'Spatula'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'No added sugar. Cut into finger-sized strips. Serve with fruit instead of syrup.'
+            },
+            {
+                id: 'veggie-muffins',
+                name: 'Veggie & Cheese Muffins',
+                type: 'breakfast',
+                difficulty: 'medium',
+                prepTime: '30 min',
+                protein: 'eggs',
+                ingredients: [
+                    { name: 'eggs', quantity: 6, unit: 'count' },
+                    { name: 'cheese', quantity: 100, unit: 'g' },
+                    { name: 'mixed vegetables', quantity: 200, unit: 'g' },
+                    { name: 'flour', quantity: 0.5, unit: 'cup' }
+                ],
+                steps: [
+                    'Preheat oven to 180°C',
+                    'Whisk eggs with flour',
+                    'Dice vegetables very small',
+                    'Mix in cheese and vegetables',
+                    'Pour into muffin tins',
+                    'Bake 20 minutes until set'
+                ],
+                utensils: ['Muffin tin', 'Mixing bowl', 'Oven'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'No salt. Ensure vegetables are very finely diced. Great for batch cooking and freezing.'
+            },
+            {
+                id: 'turkey-meatloaf',
+                name: 'Turkey Meatloaf with Sweet Potato',
+                type: 'dinner',
+                difficulty: 'medium',
+                prepTime: '60 min',
+                protein: 'turkey',
+                ingredients: [
+                    { name: 'ground turkey', quantity: 500, unit: 'g' },
+                    { name: 'eggs', quantity: 1, unit: 'count' },
+                    { name: 'breadcrumbs', quantity: 3, unit: 'tbsp' },
+                    { name: 'sweet potatoes', quantity: 3, unit: 'count' },
+                    { name: 'mixed vegetables', quantity: 200, unit: 'g' }
+                ],
+                steps: [
+                    'Mix ground turkey with egg and breadcrumbs',
+                    'Shape into loaf in baking dish',
+                    'Bake at 180°C for 45 minutes',
+                    'Roast sweet potatoes alongside',
+                    'Steam mixed vegetables',
+                    'Slice meatloaf and serve with vegetables'
+                ],
+                utensils: ['Baking dish', 'Mixing bowl', 'Steamer'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'No salt in meat mixture. Cut very small for baby. Turkey is a lean, healthy protein.',
+                advancePrep: {
+                    defrost: 'Defrost ground turkey in fridge 12 hours before cooking if frozen',
+                    hoursNeeded: 12
+                }
+            },
+            {
+                id: 'fish-fingers',
+                name: 'Homemade Fish Fingers with Peas',
+                type: 'dinner',
+                difficulty: 'easy',
+                prepTime: '25 min',
+                protein: 'fish',
+                ingredients: [
+                    { name: 'white fish fillets', quantity: 400, unit: 'g' },
+                    { name: 'breadcrumbs', quantity: 100, unit: 'g' },
+                    { name: 'eggs', quantity: 2, unit: 'count' },
+                    { name: 'frozen peas', quantity: 200, unit: 'g' },
+                    { name: 'potatoes', quantity: 4, unit: 'count' }
+                ],
+                steps: [
+                    'Cut fish into finger-sized strips',
+                    'Dip in beaten egg, then breadcrumbs',
+                    'Bake at 200°C for 15 minutes',
+                    'Roast potato wedges alongside',
+                    'Cook peas until soft',
+                    'Check fish carefully for bones before serving'
+                ],
+                utensils: ['Baking tray', 'Bowls for coating', 'Pot'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Check very carefully for bones. Cut into appropriate sizes. Peas should be soft.',
+                advancePrep: {
+                    defrost: 'Defrost fish fillets in fridge 12 hours before cooking if frozen',
+                    hoursNeeded: 12
+                }
+            },
+            {
+                id: 'shepherd-pie',
+                name: "Shepherd's Pie",
+                type: 'dinner',
+                difficulty: 'medium',
+                prepTime: '50 min',
+                protein: 'lamb',
+                ingredients: [
+                    { name: 'ground lamb', quantity: 500, unit: 'g' },
+                    { name: 'carrots', quantity: 2, unit: 'count' },
+                    { name: 'peas', quantity: 150, unit: 'g' },
+                    { name: 'potatoes', quantity: 4, unit: 'count' },
+                    { name: 'butter', quantity: 2, unit: 'tbsp' },
+                    { name: 'milk', quantity: 0.25, unit: 'cup' }
+                ],
+                steps: [
+                    'Cook ground lamb with diced carrots',
+                    'Add peas and cook until soft',
+                    'Boil and mash potatoes with butter and milk',
+                    'Place meat mixture in baking dish',
+                    'Top with mashed potato',
+                    'Bake at 180°C for 25 minutes until golden'
+                ],
+                utensils: ['Baking dish', 'Pan', 'Pot', 'Masher'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'No salt in any component. Mash some vegetables for easier eating. Classic comfort food.',
+                advancePrep: {
+                    defrost: 'Defrost ground lamb in fridge 12 hours before cooking if frozen',
+                    hoursNeeded: 12
+                }
+            },
+            {
+                id: 'risotto',
+                name: 'Creamy Vegetable Risotto',
+                type: 'dinner',
+                difficulty: 'medium',
+                prepTime: '35 min',
+                protein: 'rice',
+                ingredients: [
+                    { name: 'arborio rice', quantity: 1.5, unit: 'cup' },
+                    { name: 'vegetable stock', quantity: 1, unit: 'l' },
+                    { name: 'mixed vegetables', quantity: 300, unit: 'g' },
+                    { name: 'parmesan', quantity: 50, unit: 'g' },
+                    { name: 'butter', quantity: 2, unit: 'tbsp' }
+                ],
+                steps: [
+                    'Dice vegetables small',
+                    'Sauté vegetables in butter',
+                    'Add rice and stir',
+                    'Gradually add warm stock, stirring constantly (Thermomix: 20 min/100°C/reverse/speed 1)',
+                    'Stir in parmesan',
+                    'Season adult portions only'
+                ],
+                utensils: ['Large pot or Thermomix', 'Wooden spoon'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'No salt. Ensure rice is very soft and creamy. Vegetables should be well cooked.'
+            },
+            {
+                id: 'tuna-pasta-bake',
+                name: 'Tuna Pasta Bake',
+                type: 'dinner',
+                difficulty: 'easy',
+                prepTime: '35 min',
+                protein: 'fish',
+                ingredients: [
+                    { name: 'pasta', quantity: 300, unit: 'g' },
+                    { name: 'tuna', quantity: 2, unit: 'can' },
+                    { name: 'frozen peas', quantity: 150, unit: 'g' },
+                    { name: 'cheese sauce', quantity: 200, unit: 'ml' },
+                    { name: 'cheese', quantity: 100, unit: 'g' }
+                ],
+                steps: [
+                    'Cook pasta until soft',
+                    'Mix drained tuna, peas, and cheese sauce',
+                    'Combine with pasta in baking dish',
+                    'Top with grated cheese',
+                    'Bake at 180°C for 20 minutes until golden'
+                ],
+                utensils: ['Baking dish', 'Large pot', 'Mixing bowl'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Use tuna in spring water, not brine. Ensure peas are very soft. Cut pasta small.'
+            },
+            {
+                id: 'chicken-nuggets',
+                name: 'Homemade Chicken Nuggets with Veggie Sticks',
+                type: 'lunch',
+                difficulty: 'easy',
+                prepTime: '25 min',
+                protein: 'chicken',
+                ingredients: [
+                    { name: 'chicken breasts', quantity: 3, unit: 'count' },
+                    { name: 'breadcrumbs', quantity: 100, unit: 'g' },
+                    { name: 'eggs', quantity: 2, unit: 'count' },
+                    { name: 'carrots', quantity: 2, unit: 'count' },
+                    { name: 'cucumber', quantity: 1, unit: 'count' }
+                ],
+                steps: [
+                    'Cut chicken into small nugget pieces',
+                    'Dip in beaten egg, then breadcrumbs',
+                    'Bake at 200°C for 18 minutes',
+                    'Cut vegetables into stick shapes',
+                    'Serve nuggets with veggie sticks'
+                ],
+                utensils: ['Baking tray', 'Bowls for coating', 'Knife'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Much healthier than store-bought. No salt needed. Cut nuggets in half for baby.',
+                advancePrep: {
+                    defrost: 'Defrost chicken breasts in fridge 12 hours before cooking if frozen',
+                    hoursNeeded: 12
+                }
+            },
+            {
+                id: 'mac-cheese',
+                name: 'Creamy Mac and Cheese',
+                type: 'lunch',
+                difficulty: 'easy',
+                prepTime: '20 min',
+                protein: 'pasta',
+                ingredients: [
+                    { name: 'macaroni', quantity: 300, unit: 'g' },
+                    { name: 'butter', quantity: 3, unit: 'tbsp' },
+                    { name: 'flour', quantity: 3, unit: 'tbsp' },
+                    { name: 'milk', quantity: 2, unit: 'cup' },
+                    { name: 'cheddar cheese', quantity: 200, unit: 'g' }
+                ],
+                steps: [
+                    'Cook macaroni until very soft',
+                    'Make cheese sauce: melt butter, add flour, then milk',
+                    'Stir in grated cheese until melted',
+                    'Mix sauce with drained pasta',
+                    'Serve immediately'
+                ],
+                utensils: ['Large pot', 'Saucepan', 'Whisk'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Use full-fat milk. No salt needed. Classic kid favorite that adults love too!'
+            },
+            {
+                id: 'chickpea-coconut-curry',
+                name: 'Mild Chickpea Coconut Curry',
+                type: 'dinner',
+                difficulty: 'easy',
+                prepTime: '30 min',
+                protein: 'chickpeas',
+                ingredients: [
+                    { name: 'chickpeas', quantity: 2, unit: 'can' },
+                    { name: 'coconut milk', quantity: 1, unit: 'can' },
+                    { name: 'sweet potato', quantity: 1, unit: 'count' },
+                    { name: 'spinach', quantity: 100, unit: 'g' },
+                    { name: 'curry powder', quantity: 1, unit: 'tsp' },
+                    { name: 'rice', quantity: 1, unit: 'cup' }
+                ],
+                steps: [
+                    'Cook rice',
+                    'Dice sweet potato into small cubes',
+                    'Simmer sweet potato in coconut milk with VERY mild curry',
+                    'Add drained chickpeas and cook until soft',
+                    'Stir in spinach until wilted',
+                    'Serve over rice'
+                ],
+                utensils: ['Large pot', 'Rice cooker or pot'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Use minimal curry powder - just a pinch. Sweet potato should be very soft. Vegetarian protein.'
+            },
+            {
+                id: 'sausage-casserole',
+                name: 'Sausage and Bean Casserole',
+                type: 'dinner',
+                difficulty: 'easy',
+                prepTime: '40 min',
+                protein: 'pork',
+                ingredients: [
+                    { name: 'sausages', quantity: 8, unit: 'count' },
+                    { name: 'white beans', quantity: 2, unit: 'can' },
+                    { name: 'carrots', quantity: 2, unit: 'count' },
+                    { name: 'tomato sauce', quantity: 400, unit: 'ml' },
+                    { name: 'stock', quantity: 200, unit: 'ml' }
+                ],
+                steps: [
+                    'Brown sausages in pan',
+                    'Dice carrots small',
+                    'Add beans, carrots, tomato sauce, and stock to pan',
+                    'Simmer 25 minutes until carrots soft',
+                    'Cut sausages into small pieces',
+                    'Serve with mashed potato or bread'
+                ],
+                utensils: ['Large pan or casserole dish', 'Knife'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Choose low-salt sausages. Remove skins if preferred. Cut very small for baby.',
+                advancePrep: {
+                    defrost: 'Defrost sausages in fridge 12 hours before cooking if frozen',
+                    hoursNeeded: 12
+                }
+            },
+            {
+                id: 'frittata',
+                name: 'Vegetable Frittata',
+                type: 'lunch',
+                difficulty: 'easy',
+                prepTime: '25 min',
+                protein: 'eggs',
+                ingredients: [
+                    { name: 'eggs', quantity: 8, unit: 'count' },
+                    { name: 'bell peppers', quantity: 1, unit: 'count' },
+                    { name: 'zucchini', quantity: 1, unit: 'count' },
+                    { name: 'cheese', quantity: 100, unit: 'g' },
+                    { name: 'milk', quantity: 0.25, unit: 'cup' }
+                ],
+                steps: [
+                    'Dice vegetables very small and sauté',
+                    'Whisk eggs with milk',
+                    'Pour eggs over vegetables in oven-safe pan',
+                    'Sprinkle cheese on top',
+                    'Bake at 180°C for 15-18 minutes',
+                    'Cut into wedges'
+                ],
+                utensils: ['Oven-safe pan', 'Whisk', 'Knife'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'No salt. Great for using up leftover vegetables. Can be served warm or cold.'
+            },
+            {
+                id: 'cottage-pie',
+                name: 'Cottage Pie',
+                type: 'dinner',
+                difficulty: 'medium',
+                prepTime: '55 min',
+                protein: 'beef',
+                ingredients: [
+                    { name: 'ground beef', quantity: 500, unit: 'g' },
+                    { name: 'carrots', quantity: 2, unit: 'count' },
+                    { name: 'peas', quantity: 150, unit: 'g' },
+                    { name: 'corn', quantity: 150, unit: 'g' },
+                    { name: 'potatoes', quantity: 4, unit: 'count' },
+                    { name: 'butter', quantity: 2, unit: 'tbsp' },
+                    { name: 'milk', quantity: 0.25, unit: 'cup' }
+                ],
+                steps: [
+                    'Cook ground beef with diced carrots',
+                    'Add peas and corn, cook until soft',
+                    'Boil and mash potatoes with butter and milk',
+                    'Place meat mixture in baking dish',
+                    'Top with mashed potato',
+                    'Bake at 180°C for 25 minutes until golden'
+                ],
+                utensils: ['Baking dish', 'Pan', 'Pot', 'Masher'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Similar to shepherd\'s pie but with beef. No salt. Comfort food classic.',
+                advancePrep: {
+                    defrost: 'Defrost ground beef in fridge 12 hours before cooking if frozen',
+                    hoursNeeded: 12
+                }
+            },
+            {
+                id: 'baked-sweet-potato',
+                name: 'Baked Sweet Potato with Toppings',
+                type: 'lunch',
+                difficulty: 'easy',
+                prepTime: '60 min',
+                protein: 'sweet potato',
+                ingredients: [
+                    { name: 'sweet potatoes', quantity: 3, unit: 'count' },
+                    { name: 'cheese', quantity: 100, unit: 'g' },
+                    { name: 'baked beans', quantity: 1, unit: 'can' },
+                    { name: 'butter', quantity: 2, unit: 'tbsp' }
+                ],
+                steps: [
+                    'Pierce sweet potatoes with fork',
+                    'Bake at 200°C for 45-50 minutes until soft',
+                    'Cut open and fluff insides',
+                    'Top with cheese, beans, or butter',
+                    'Serve with steamed vegetables on side'
+                ],
+                utensils: ['Baking tray', 'Fork'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Very nutritious and naturally sweet. Scoop out soft flesh for baby. No added salt needed.'
+            },
+            {
+                id: 'chicken-soup',
+                name: 'Hearty Chicken Noodle Soup',
+                type: 'lunch',
+                difficulty: 'easy',
+                prepTime: '35 min',
+                protein: 'chicken',
+                ingredients: [
+                    { name: 'chicken breasts', quantity: 2, unit: 'count' },
+                    { name: 'egg noodles', quantity: 200, unit: 'g' },
+                    { name: 'carrots', quantity: 2, unit: 'count' },
+                    { name: 'celery', quantity: 2, unit: 'stalks' },
+                    { name: 'chicken stock', quantity: 1, unit: 'l' }
+                ],
+                steps: [
+                    'Dice chicken, carrots, and celery small',
+                    'Simmer in chicken stock until cooked through',
+                    'Add noodles and cook until soft',
+                    'Shred chicken into small pieces',
+                    'Serve in bowls'
+                ],
+                utensils: ['Large pot', 'Knife'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Ensure noodles are very soft. Perfect for cold days. Can be made in Thermomix.',
+                advancePrep: {
+                    defrost: 'Defrost chicken breasts in fridge 12 hours before cooking if frozen',
+                    hoursNeeded: 12
+                }
+            },
+            {
+                id: 'pizza-toast',
+                name: 'Mini Pizza Toasts',
+                type: 'lunch',
+                difficulty: 'easy',
+                prepTime: '15 min',
+                protein: 'cheese',
+                ingredients: [
+                    { name: 'bread', quantity: 4, unit: 'slices' },
+                    { name: 'tomato sauce', quantity: 100, unit: 'ml' },
+                    { name: 'mozzarella', quantity: 150, unit: 'g' },
+                    { name: 'mixed vegetables', quantity: 100, unit: 'g' }
+                ],
+                steps: [
+                    'Toast bread lightly',
+                    'Spread with tomato sauce',
+                    'Top with cheese and finely diced vegetables',
+                    'Grill or bake at 200°C for 5-7 minutes',
+                    'Cut into strips for baby'
+                ],
+                utensils: ['Baking tray', 'Grater'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Use low-salt tomato sauce. Fun way to get vegetables in. Cut into finger-sized pieces.'
+            },
+            {
+                id: 'butternut-squash-pasta',
+                name: 'Butternut Squash Pasta',
+                type: 'dinner',
+                difficulty: 'easy',
+                prepTime: '30 min',
+                protein: 'pasta',
+                ingredients: [
+                    { name: 'pasta', quantity: 300, unit: 'g' },
+                    { name: 'butternut squash', quantity: 1, unit: 'count' },
+                    { name: 'butter', quantity: 2, unit: 'tbsp' },
+                    { name: 'sage', quantity: 1, unit: 'tbsp' },
+                    { name: 'parmesan', quantity: 50, unit: 'g' }
+                ],
+                steps: [
+                    'Dice butternut squash small and roast until soft',
+                    'Cook pasta until very soft',
+                    'Mash half the squash to make sauce',
+                    'Toss pasta with squash sauce and cubed squash',
+                    'Add sage and parmesan for adults only',
+                    'Serve immediately'
+                ],
+                utensils: ['Baking tray', 'Large pot', 'Masher'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Naturally sweet and nutritious. No salt needed. Beautiful orange color babies love.'
+            },
+            {
+                id: 'fish-rice-bowls',
+                name: 'Flaked Fish and Rice Bowls',
+                type: 'dinner',
+                difficulty: 'easy',
+                prepTime: '25 min',
+                protein: 'fish',
+                ingredients: [
+                    { name: 'white fish fillets', quantity: 3, unit: 'count' },
+                    { name: 'rice', quantity: 1.5, unit: 'cup' },
+                    { name: 'broccoli', quantity: 200, unit: 'g' },
+                    { name: 'peas', quantity: 150, unit: 'g' },
+                    { name: 'soy sauce', quantity: 2, unit: 'tbsp' }
+                ],
+                steps: [
+                    'Cook rice (Thermomix: rice mode)',
+                    'Steam fish and vegetables until cooked',
+                    'Flake fish carefully, checking for bones',
+                    'Mix fish, vegetables, and rice in bowls',
+                    'Serve baby portion plain',
+                    'Adults can add soy sauce'
+                ],
+                utensils: ['Rice cooker or pot', 'Steamer', 'Fork'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'CRITICAL: Check very carefully for bones. Nutritious one-bowl meal.',
+                advancePrep: {
+                    defrost: 'Defrost fish fillets in fridge 12 hours before cooking if frozen',
+                    hoursNeeded: 12
+                }
+            },
+            {
+                id: 'pulled-pork',
+                name: 'Slow Cooker Pulled Pork',
+                type: 'dinner',
+                difficulty: 'easy',
+                prepTime: '6-8 hours',
+                protein: 'pork',
+                ingredients: [
+                    { name: 'pork shoulder', quantity: 1, unit: 'kg' },
+                    { name: 'stock', quantity: 500, unit: 'ml' },
+                    { name: 'soft buns', quantity: 6, unit: 'count' },
+                    { name: 'coleslaw', quantity: 200, unit: 'g' }
+                ],
+                steps: [
+                    'Place pork in slow cooker with stock',
+                    'Cook on low 6-8 hours until tender',
+                    'Shred meat with forks',
+                    'Serve baby portion plain with mashed sweet potato',
+                    'Adults can have in soft buns with coleslaw and BBQ sauce'
+                ],
+                utensils: ['Slow cooker or Thermomix', 'Forks'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'No sauce for baby. Shred very fine. Naturally tender and flavorful.',
+                advancePrep: {
+                    defrost: 'Defrost pork shoulder in fridge 24 hours before cooking',
+                    hoursNeeded: 24
+                }
+            },
+            {
+                id: 'egg-fried-rice',
+                name: 'Simple Egg Fried Rice',
+                type: 'lunch',
+                difficulty: 'easy',
+                prepTime: '20 min',
+                protein: 'eggs',
+                ingredients: [
+                    { name: 'cooked rice', quantity: 2, unit: 'cup' },
+                    { name: 'eggs', quantity: 4, unit: 'count' },
+                    { name: 'frozen mixed vegetables', quantity: 200, unit: 'g' },
+                    { name: 'soy sauce', quantity: 2, unit: 'tbsp' }
+                ],
+                steps: [
+                    'Scramble eggs in hot pan',
+                    'Add cooked rice and frozen vegetables',
+                    'Stir fry until vegetables cooked and hot throughout',
+                    'Remove baby portion before adding sauce',
+                    'Add soy sauce to adult portions'
+                ],
+                utensils: ['Wok or large pan', 'Spatula'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Great for using leftover rice. No soy sauce for baby. Dice everything small.'
+            },
+            {
+                id: 'baked-beans-toast',
+                name: 'Baked Beans on Toast',
+                type: 'breakfast',
+                difficulty: 'easy',
+                prepTime: '10 min',
+                protein: 'beans',
+                ingredients: [
+                    { name: 'baked beans', quantity: 1, unit: 'can' },
+                    { name: 'bread', quantity: 4, unit: 'slices' },
+                    { name: 'butter', quantity: 2, unit: 'tbsp' },
+                    { name: 'cheese', quantity: 50, unit: 'g' }
+                ],
+                steps: [
+                    'Heat beans in pot until warm',
+                    'Toast bread',
+                    'Butter toast if desired',
+                    'Spoon beans on toast',
+                    'Sprinkle with cheese',
+                    'Cut into strips for baby'
+                ],
+                utensils: ['Pot', 'Toaster'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Use low-salt/no-salt beans. Quick, nutritious breakfast. Classic comfort food.'
+            },
+            {
+                id: 'chicken-vegetable-bake',
+                name: 'Chicken and Vegetable Traybake',
+                type: 'dinner',
+                difficulty: 'easy',
+                prepTime: '45 min',
+                protein: 'chicken',
+                ingredients: [
+                    { name: 'chicken thighs', quantity: 4, unit: 'count' },
+                    { name: 'potatoes', quantity: 4, unit: 'count' },
+                    { name: 'carrots', quantity: 3, unit: 'count' },
+                    { name: 'red onion', quantity: 1, unit: 'count' },
+                    { name: 'olive oil', quantity: 3, unit: 'tbsp' }
+                ],
+                steps: [
+                    'Dice vegetables into chunks',
+                    'Place chicken and vegetables on baking tray',
+                    'Drizzle with olive oil',
+                    'Roast at 190°C for 35-40 minutes',
+                    'Remove skin from chicken for baby',
+                    'Cut everything small before serving'
+                ],
+                utensils: ['Large baking tray'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'One-pan meal = easy cleanup! Remove chicken skin. Season adult portions after.',
+                advancePrep: {
+                    defrost: 'Defrost chicken thighs in fridge 12 hours before cooking if frozen',
+                    hoursNeeded: 12
+                }
+            },
+            {
+                id: 'smoothie-bowl',
+                name: 'Fruit Smoothie Bowl',
+                type: 'breakfast',
+                difficulty: 'easy',
+                prepTime: '10 min',
+                protein: 'yogurt',
+                ingredients: [
+                    { name: 'frozen berries', quantity: 2, unit: 'cup' },
+                    { name: 'bananas', quantity: 2, unit: 'count' },
+                    { name: 'greek yogurt', quantity: 200, unit: 'g' },
+                    { name: 'oats', quantity: 0.25, unit: 'cup' },
+                    { name: 'fresh fruit', quantity: 100, unit: 'g' }
+                ],
+                steps: [
+                    'Blend frozen berries, banana, and yogurt until smooth',
+                    'Pour into bowls',
+                    'Top with oats and fresh fruit pieces',
+                    'Serve immediately'
+                ],
+                utensils: ['Blender', 'Bowls'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Nutritious and refreshing. Cut fresh fruit toppings very small. No honey for under 1.'
+            },
+            {
+                id: 'white-fish-pea-mash',
+                name: 'White Fish with Pea and Potato Mash',
+                type: 'dinner',
+                difficulty: 'easy',
+                prepTime: '25 min',
+                protein: 'fish',
+                ingredients: [
+                    { name: 'white fish fillets', quantity: 3, unit: 'count' },
+                    { name: 'potatoes', quantity: 4, unit: 'count' },
+                    { name: 'frozen peas', quantity: 200, unit: 'g' },
+                    { name: 'butter', quantity: 2, unit: 'tbsp' },
+                    { name: 'milk', quantity: 0.25, unit: 'cup' }
+                ],
+                steps: [
+                    'Steam or bake fish until cooked',
+                    'Boil potatoes and peas until soft',
+                    'Mash potatoes and peas with butter and milk',
+                    'Flake fish, checking carefully for bones',
+                    'Serve fish with green mash',
+                    'Season adult portions with lemon and herbs'
+                ],
+                utensils: ['Steamer or oven', 'Pot', 'Masher'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Kids love the green mash! Check fish very carefully for bones. Nutritious and mild.',
+                advancePrep: {
+                    defrost: 'Defrost fish fillets in fridge 12 hours before cooking if frozen',
+                    hoursNeeded: 12
+                }
+            },
+            {
+                id: 'beef-tacos',
+                name: 'Mild Beef Soft Tacos',
+                type: 'dinner',
+                difficulty: 'easy',
+                prepTime: '25 min',
+                protein: 'beef',
+                ingredients: [
+                    { name: 'ground beef', quantity: 400, unit: 'g' },
+                    { name: 'soft tortillas', quantity: 8, unit: 'count' },
+                    { name: 'cheese', quantity: 150, unit: 'g' },
+                    { name: 'lettuce', quantity: 100, unit: 'g' },
+                    { name: 'tomato', quantity: 2, unit: 'count' },
+                    { name: 'sour cream', quantity: 100, unit: 'ml' }
+                ],
+                steps: [
+                    'Cook ground beef until browned',
+                    'Warm tortillas',
+                    'Set out toppings in bowls',
+                    'For baby: place small amount of beef, cheese in tortilla',
+                    'For adults: add lettuce, tomato, sour cream, spices',
+                    'Cut baby portions small or serve deconstructed'
+                ],
+                utensils: ['Pan', 'Knife', 'Bowls'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'No spices or sauces for baby. Can serve deconstructed. Fun interactive meal.',
+                advancePrep: {
+                    defrost: 'Defrost ground beef in fridge 12 hours before cooking if frozen',
+                    hoursNeeded: 12
+                }
+            },
+            {
+                id: 'weetabix-fruit',
+                name: 'Weetabix with Mashed Fruit',
+                type: 'breakfast',
+                difficulty: 'easy',
+                prepTime: '5 min',
+                protein: 'cereal',
+                ingredients: [
+                    { name: 'weetabix', quantity: 2, unit: 'count' },
+                    { name: 'milk', quantity: 1, unit: 'cup' },
+                    { name: 'banana', quantity: 1, unit: 'count' },
+                    { name: 'berries', quantity: 100, unit: 'g' }
+                ],
+                steps: [
+                    'Break Weetabix into bowl',
+                    'Add milk and mash with fork',
+                    'Mash banana and berries',
+                    'Mix fruit into cereal',
+                    'Serve immediately'
+                ],
+                utensils: ['Bowl', 'Fork'],
+                rating: 0,
+                notes: '',
+                babyNotes: 'Quick, nutritious breakfast. Use full-fat milk. Naturally sweet from fruit.'
+            }
+        ];
+
+        // Initialize app
+        async function initApp() {
+            try {
+                // Load Google APIs
+                await loadGoogleAPIs();
+                
+                // Wait for both APIs to load
+                while (!gapiLoaded || !gisLoaded) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                
+                showSaveNotification('Connecting to Google Sheets...', false);
+                
+                // Request authorization
+                await getAccessToken();
+
+                // Load translations from Google Sheets
+                await loadTranslations();
+                
+                showSaveNotification('Loading data from Google Sheets...', false);
+                
+                // Load Meals
+                try {
+                    const mealsData = await readSheet('Meals');
+                    if (mealsData && mealsData.length > 1) {
+                        // Skip header row, parse meals
+                        // Columns: name, type, difficulty, prepTime, cookTime, protein, ingredients, steps, utensils, babyNotes, rating, isCustom, notes (optional)
+                        // Helper to safely parse JSON or return as-is
+                        const safeParse = (value) => {
+                            if (!value) return [];
+                            if (typeof value === 'string') {
+                                try {
+                                    return JSON.parse(value);
+                                } catch (e) {
+                                    console.warn('Could not parse JSON:', value, e);
+                                    return [];
+                                }
+                            }
+                            return value;
+                        };
+
+                        mealLibrary = mealsData.slice(1).map(row => ({
+                            name: row[0] || '',
+                            type: row[1] || '',
+                            category: row[1] || '', // Keep for backwards compatibility
+                            difficulty: row[2] || '',
+                            prepTime: row[3] || '',
+                            cookTime: row[4] || '',
+                            protein: row[5] || '',
+                            ingredients: safeParse(row[6]),
+                            steps: safeParse(row[7]),
+                            utensils: safeParse(row[8]),
+                            babyNotes: row[9] || '',
+                            rating: parseInt(row[10]) || 0,
+                            isCustom: row[11] === 'true' || row[11] === true,
+                            notes: row[12] || ''
+                        }));
+                        console.log('Loaded', mealLibrary.length, 'meals from Google Sheets');
+                    } else {
+                        // No meals in sheet, use initial meals
+                        mealLibrary = initialMeals;
+                        await saveMealLibrary();
+                    }
+                } catch (error) {
+                    console.error('Error loading meals:', error);
+                    mealLibrary = initialMeals;
+                }
+
+                // Load Weekly Plan
+                try {
+                    const planData = await readSheet('WeeklyPlan');
+                    if (planData && planData.length > 1) {
+                        weeklyPlan = planData.slice(1).map(row => ({
+                            day: row[0] || '',
+                            breakfast: row[1] || '',
+                            lunch: row[2] || '',
+                            dinner: row[3] || ''
+                        }));
+                        console.log('Loaded weekly plan from Google Sheets');
+                    } else {
+                        await generateNewWeek();
+                    }
+                } catch (error) {
+                    console.error('Error loading weekly plan:', error);
+                    await generateNewWeek();
+                }
+
+                // Load Shopping List
+                try {
+                    const shoppingData = await readSheet('ShoppingList');
+                    if (shoppingData && shoppingData.length > 1) {
+                        shoppingList = shoppingData.slice(1).map(row => ({
+                            name: row[0] || '',
+                            quantity: row[1] || '',
+                            count: parseInt(row[2]) || 0,
+                            usage: row[3] ? JSON.parse(row[3]) : [],
+                            checked: row[4] === 'true' || row[4] === true
+                        }));
+                        console.log('Loaded shopping list from Google Sheets');
+                    } else if (weeklyPlan.length > 0) {
+                        await generateShoppingList();
+                    }
+                } catch (error) {
+                    console.error('Error loading shopping list:', error);
+                    if (weeklyPlan.length > 0) {
+                        await generateShoppingList();
+                    }
+                }
+
+                // Load Requirements
+                try {
+                    const reqData = await readSheet('Requirements');
+                    if (reqData && reqData.length > 1) {
+                        requirements = reqData.slice(1).map(row => row[0] || '');
+                        console.log('Loaded requirements from Google Sheets');
+                    }
+                } catch (error) {
+                    console.error('Error loading requirements:', error);
+                }
+
+                renderAll();
+                showSaveNotification('Data loaded successfully!');
+            } catch (error) {
+                console.error('Error initializing app:', error);
+                if (error.message && error.message.includes('popup')) {
+                    alert('Please allow popups for this site to sign in with Google.');
+                } else {
+                    alert('Error loading data from Google Sheets. Please check your internet connection and try again. Error: ' + error.message);
+                }
+                mealLibrary = initialMeals;
+                await generateNewWeek();
+                renderAll();
+            }
+        }
+
+        async function saveMealLibrary() {
+            try {
+                // Convert meal library to sheet format
+                const rows = [
+                    ['name', 'type', 'difficulty', 'prepTime', 'cookTime', 'protein', 'ingredients', 'steps', 'utensils', 'babyNotes', 'rating', 'isCustom', 'notes']
+                ];
+                
+                mealLibrary.forEach(meal => {
+                    rows.push([
+                        meal.name || '',
+                        meal.type || meal.category || '',
+                        meal.difficulty || '',
+                        meal.prepTime || '',
+                        meal.cookTime || '',
+                        meal.protein || '',
+                        JSON.stringify(meal.ingredients || []),
+                        JSON.stringify(meal.steps || []),
+                        JSON.stringify(meal.utensils || []),
+                        meal.babyNotes || '',
+                        meal.rating || 0,
+                        meal.isCustom || false,
+                        meal.notes || ''
+                    ]);
+                });
+                
+                // Clear and write to sheet
+                await clearSheet('Meals');
+                await writeSheet('Meals', rows);
+                showSaveNotification('Meals saved to Google Sheets');
+            } catch (error) {
+                console.error('Error saving meal library:', error);
+                alert('Error saving meals to Google Sheets: ' + error.message);
+            }
+        }
+
+        async function saveWeeklyPlan() {
+            try {
+                const rows = [
+                    ['day', 'breakfast', 'lunch', 'dinner']
+                ];
+                
+                weeklyPlan.forEach(day => {
+                    rows.push([
+                        day.day || '',
+                        day.breakfast || '',
+                        day.lunch || '',
+                        day.dinner || ''
+                    ]);
+                });
+                
+                await clearSheet('WeeklyPlan');
+                await writeSheet('WeeklyPlan', rows);
+                showSaveNotification('Weekly plan saved to Google Sheets');
+            } catch (error) {
+                console.error('Error saving weekly plan:', error);
+                alert('Error saving weekly plan to Google Sheets: ' + error.message);
+            }
+        }
+
+        async function saveShoppingList() {
+            try {
+                const rows = [
+                    ['name', 'quantity', 'count', 'usage', 'checked']
+                ];
+                
+                shoppingList.forEach(item => {
+                    rows.push([
+                        item.name || '',
+                        item.quantity || '',
+                        item.count || 0,
+                        JSON.stringify(item.usage || []),
+                        item.checked || false
+                    ]);
+                });
+                
+                await clearSheet('ShoppingList');
+                await writeSheet('ShoppingList', rows);
+                showSaveNotification('Shopping list saved to Google Sheets');
+            } catch (error) {
+                console.error('Error saving shopping list:', error);
+                alert('Error saving shopping list to Google Sheets: ' + error.message);
+            }
+        }
+
+        async function saveRequirements() {
+            try {
+                const rows = [['requirement']];
+                
+                requirements.forEach(req => {
+                    rows.push([req || '']);
+                });
+                
+                await clearSheet('Requirements');
+                await writeSheet('Requirements', rows);
+                showSaveNotification('Requirements saved to Google Sheets');
+            } catch (error) {
+                console.error('Error saving requirements:', error);
+                alert('Error saving requirements to Google Sheets: ' + error.message);
+            }
+        }
+
+        function showSaveNotification(message, isError = false) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: ${isError ? '#ef4444' : '#10b981'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 1000;
+                font-size: 14px;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, isError ? 4000 : 2000);
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName + '-section').classList.add('active');
+            
+            if (tabName === 'generate') {
+                renderRequirements();
+            }
+        }
+
+        function renderAll() {
+            renderMealLibrary();
+            renderWeeklyPlan();
+            renderShoppingList();
+            renderRequirements();
+        }
+
+        function renderMealLibrary() {
+            const container = document.getElementById('meals-container');
+            let filteredMeals = mealLibrary;
+
+            // Apply rating filter
+            if (currentFilter === 'favorites') {
+                filteredMeals = filteredMeals.filter(m => m.rating >= 4);
+            } else if (currentFilter === 'good') {
+                filteredMeals = filteredMeals.filter(m => m.rating === 3);
+            } else if (currentFilter === 'avoid') {
+                filteredMeals = filteredMeals.filter(m => m.rating > 0 && m.rating <= 2);
+            }
+
+            // Apply type filter
+            if (currentTypeFilter !== 'all') {
+                filteredMeals = filteredMeals.filter(m => m.type === currentTypeFilter);
+            }
+
+            // Apply search query
+            if (searchQuery) {
+                const query = searchQuery.toLowerCase();
+                filteredMeals = filteredMeals.filter(m => {
+                    // Search in meal name
+                    if (m.name.toLowerCase().includes(query)) return true;
+                    
+                    // Search in ingredients - handle both old and new format
+                    if (m.ingredients.some(ing => {
+                        if (typeof ing === 'string') {
+                            return ing.toLowerCase().includes(query);
+                        } else if (ing.name) {
+                            return ing.name.toLowerCase().includes(query);
+                        }
+                        return false;
+                    })) return true;
+                    
+                    return false;
+                });
+            }
+
+            if (filteredMeals.length === 0) {
+                container.innerHTML = '<div class="empty-state"><h3>No meals found</h3><p>Try adjusting your filters or search query!</p></div>';
+                return;
+            }
+
+            container.innerHTML = filteredMeals.map(meal => `
+                <div class="meal-card">
+                    <div class="meal-card-content">
+                        <div class="meal-card-info">
+                            <h3>${meal.name}</h3>
+                            <div class="meal-meta">
+                                <span class="badge ${meal.difficulty}">${meal.difficulty}</span>
+                                <span class="badge">⏱️ ${meal.prepTime}</span>
+                                <span class="badge">${getMealTypeEmoji(meal.type)} ${meal.type}</span>
+                            </div>
+                            <div class="stars">
+                                ${renderStars(meal.rating, meal.name)}
+                            </div>
+                            ${meal.notes ? `
+                                <div class="notes-section">
+                                    <strong>Your notes:</strong> ${meal.notes}
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="meal-card-actions">
+                            <button class="btn-compact" onclick="openMealDetail('${meal.name}')">View Recipe</button>
+                            <button class="btn-compact secondary" onclick="addNoteToMeal('${meal.name}')">Add Note</button>
+                            <button class="btn-delete" onclick="deleteMeal('${meal.name}')" title="Delete meal">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderStars(rating, mealId) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                const filled = i <= rating;
+                stars += `<span class="star ${filled ? 'filled' : 'empty'}" onclick="rateMeal('${mealId}', ${i})">★</span>`;
+            }
+            return stars;
+        }
+
+        function getMealTypeEmoji(type) {
+            const emojis = {
+                breakfast: '🌅',
+                lunch: '🥗',
+                dinner: '🍽️'
+            };
+            return emojis[type] || '🍴';
+        }
+
+        function findMealByName(name) {
+            return mealLibrary.find(m => m.name === name) || { name: name };
+        }
+
+        async function rateMeal(mealIdentifier, rating) {
+            // Support both id and name for backwards compatibility
+            const meal = mealLibrary.find(m => m.id === mealIdentifier || m.name === mealIdentifier);
+            if (meal) {
+                // If clicking the same rating, remove it (set to 0)
+                if (meal.rating === rating) {
+                    meal.rating = 0;
+                } else {
+                    meal.rating = rating;
+                }
+                await saveMealLibrary();
+                renderMealLibrary();
+            }
+        }
+
+        function filterMeals(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('[data-filter]').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            renderMealLibrary();
+        }
+
+        function filterByType(type) {
+            currentTypeFilter = type;
+            document.querySelectorAll('[data-type]').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            renderMealLibrary();
+        }
+
+        function searchMeals() {
+            searchQuery = document.getElementById('meal-search').value;
+            renderMealLibrary();
+        }
+
+        function openMealDetail(mealIdentifier) {
+            // Support both id and name for backwards compatibility
+            const meal = mealLibrary.find(m => m.id === mealIdentifier || m.name === mealIdentifier);
+            if (!meal) {
+                console.error('Meal not found:', mealIdentifier);
+                return;
+            }
+
+            // Format ingredients based on structure
+            let ingredientsHTML;
+            if (meal.ingredients.length > 0 && typeof meal.ingredients[0] === 'object') {
+                // New structured format - display as table
+                ingredientsHTML = `
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #667eea;">
+                                <th style="text-align: left; padding: 8px; color: #667eea;">Ingredient</th>
+                                <th style="text-align: right; padding: 8px; color: #667eea;">Quantity</th>
+                                <th style="text-align: left; padding: 8px; color: #667eea;">Unit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${meal.ingredients.map(ing => `
+                                <tr style="border-bottom: 1px solid #e5e7eb;">
+                                    <td style="padding: 8px; text-transform: capitalize;">${translateIngredient(ing.name)}</td>
+                                    <td style="padding: 8px; text-align: right; font-weight: 600;">${ing.quantity}</td>
+                                    <td style="padding: 8px;">${ing.unit === 'count' ? '' : ing.unit}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } else {
+                // Old format - display as list
+                ingredientsHTML = `
+                    <ul style="padding-left: 20px;">
+                        ${meal.ingredients.map(ing => `<li>${ing}</li>`).join('')}
+                    </ul>
+                `;
+            }
+
+            document.getElementById('modal-meal-name').textContent = getMealField(meal, 'name');
+            document.getElementById('modal-meal-content').innerHTML = `
+                <div class="meal-meta">
+                    <span class="badge ${meal.difficulty}">${meal.difficulty}</span>
+                    <span class="badge">⏱️ ${meal.prepTime}</span>
+                </div>
+
+                <h3 style="margin-top: 20px; margin-bottom: 10px;">${t('utensils')}</h3>
+                <ul>
+                    ${getMealField(meal, 'utensils').map(utensil => `<li>${translateIngredient(utensil)}</li>`).join('')}
+                </ul>
+
+                <h3 style="margin-top: 20px; margin-bottom: 10px;">Ingredients</h3>
+                ${ingredientsHTML}
+
+                <h3 style="margin-top: 20px; margin-bottom: 10px;">${t('instructions')}</h3>
+                <div class="recipe-steps">
+                    <ol>
+                        ${getMealField(meal, 'steps').map(step => `<li>${step}</li>`).join('')}
+                    </ol>
+                </div>
+
+                <div class="notes-section">
+                    <strong>${t('babySafetyNote')}</strong> ${getMealField(meal, 'babyNotes')}
+                </div>
+
+                ${meal.notes ? `
+                    <div class="notes-section" style="background: #e0f2fe; margin-top: 10px;">
+                        <strong>Your Notes:</strong> ${meal.notes}
+                    </div>
+                ` : ''}
+            `;
+
+            document.getElementById('meal-modal').classList.add('active');
+        }
+
+        function closeMealModal() {
+            document.getElementById('meal-modal').classList.remove('active');
+        }
+
+        async function addNoteToMeal(mealIdentifier) {
+            // Support both id and name for backwards compatibility
+            const meal = mealLibrary.find(m => m.id === mealIdentifier || m.name === mealIdentifier);
+            if (!meal) {
+                console.error('Meal not found:', mealIdentifier);
+                return;
+            }
+
+            const note = prompt(`Add a note or suggestion for "${meal.name}":\n\n(e.g., "Would be better with cumin" or "Baby loved this with mashed sweet potato")`);
+            
+            if (note && note.trim()) {
+                meal.notes = note.trim();
+                await saveMealLibrary();
+                renderMealLibrary();
+                alert('Note added! This will help improve future recommendations.');
+            }
+        }
+
+        async function deleteMeal(mealIdentifier) {
+            // Support both id and name for backwards compatibility
+            const meal = mealLibrary.find(m => m.id === mealIdentifier || m.name === mealIdentifier);
+            if (!meal) {
+                console.error('Meal not found:', mealIdentifier);
+                return;
+            }
+
+            if (confirm(`${t('deleteConfirm')} "${meal.name}"?\n\n${t('cannotUndo')}`)) {
+                // Remove from mealLibrary array (using name as primary identifier)
+                mealLibrary = mealLibrary.filter(m => m.name !== meal.name);
+                
+                // Save to Google Sheets
+                await saveMealLibrary();
+                
+                // Re-render the library
+                renderMealLibrary();
+                
+                showSaveNotification(t('mealDeleted'));
+            }
+        }
+
+        function renderWeeklyPlan() {
+            const container = document.getElementById('weekly-plan-content');
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
+            container.innerHTML = `
+                <div id="prep-notifications"></div>
+                <div class="week-plan">
+                    ${days.map((day, dayIndex) => {
+                        const dayPlan = weeklyPlan[dayIndex] || {};
+                        const breakfastMeal = mealLibrary.find(m => m.name === dayPlan.breakfast);
+                        const lunchMeal = mealLibrary.find(m => m.name === dayPlan.lunch);
+                        const dinnerMeal = mealLibrary.find(m => m.name === dayPlan.dinner);
+                        
+                        return `
+                            <div class="day-row">
+                                <div class="day-label">${t(day)}</div>
+                                <div class="meals-list">
+                                    <div class="meal-row">
+                                        <div class="meal-label">${t('breakfast')}:</div>
+                                        <div class="meal-name">
+                                            ${breakfastMeal ? `<a href="#" onclick="openMealDetail('${breakfastMeal.name}'); return false;" style="color: #667eea; text-decoration: none;">${getMealField(findMealByName(dayPlan.breakfast), 'name')}</a>` : dayPlan.breakfast || t('notPlanned')}
+                                        </div>
+                                        <div class="meal-actions">
+                                            <button class="btn-meal-action" onclick="swapMeal(${dayIndex}, 'breakfast')">${t('swap')}</button>
+                                            <button class="btn-meal-action replace" onclick="replaceMeal(${dayIndex}, 'breakfast')">${t('replace')}</button>
+                                        </div>
+                                    </div>
+                                    <div class="meal-row">
+                                        <div class="meal-label">${t('lunch')}:</div>
+                                        <div class="meal-name">
+                                            ${lunchMeal ? `<a href="#" onclick="openMealDetail('${lunchMeal.name}'); return false;" style="color: #667eea; text-decoration: none;">${getMealField(findMealByName(dayPlan.lunch), 'name')}</a>` : dayPlan.lunch || t('notPlanned')}
+                                        </div>
+                                        <div class="meal-actions">
+                                            <button class="btn-meal-action" onclick="swapMeal(${dayIndex}, 'lunch')">${t('swap')}</button>
+                                            <button class="btn-meal-action replace" onclick="replaceMeal(${dayIndex}, 'lunch')">${t('replace')}</button>
+                                        </div>
+                                    </div>
+                                    <div class="meal-row">
+                                        <div class="meal-label">${t('dinner')}:</div>
+                                        <div class="meal-name">
+                                            ${dinnerMeal ? `<a href="#" onclick="openMealDetail('${dinnerMeal.name}'); return false;" style="color: #667eea; text-decoration: none;">${getMealField(findMealByName(dayPlan.dinner), 'name')}</a>` : dayPlan.dinner || t('notPlanned')}
+                                        </div>
+                                        <div class="meal-actions">
+                                            <button class="btn-meal-action" onclick="swapMeal(${dayIndex}, 'dinner')">${t('swap')}</button>
+                                            <button class="btn-meal-action replace" onclick="replaceMeal(${dayIndex}, 'dinner')">${t('replace')}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                <div class="week-plan-actions">
+                    <button class="btn" onclick="generateNewWeek()">${t('generateNewWeek')}</button>
+                    <button class="btn btn-secondary" onclick="createCustomWeek()">${t('createCustomWeek')}</button>
+                </div>
+            `;
+            
+            checkPrepNotifications();
+        }
+
+        async function generateNewWeek() {
+            await generateSmartPlanLogic();
+        }
+
+        async function saveRequirementsWithFeedback() {
+            const btn = event.target;
+            const originalText = btn.textContent;
+            
+            btn.textContent = '💾 Saving...';
+            btn.disabled = true;
+
+            await saveRequirements();
+
+            btn.textContent = '✅ Saved!';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }, 1500);
+        }
+
+        // Helper function to select meals without repetition
+        function selectMealWithoutRepetition(mealType, usedMealsCount, availableMeals, maxRepeat) {
+            // Filter meals that haven't exceeded max repeat
+            const eligibleMeals = availableMeals.filter(meal => {
+                const count = usedMealsCount[meal.name] || 0;
+                return count < maxRepeat;
+            });
+            
+            if (eligibleMeals.length === 0) {
+                // Fallback: use any available meal if all are at max
+                return availableMeals[Math.floor(Math.random() * availableMeals.length)];
+            }
+            
+            // Randomly select from eligible meals
+            return eligibleMeals[Math.floor(Math.random() * eligibleMeals.length)];
+        }
+
+        async function generateSmartPlanLogic() {
+            const favorites = mealLibrary.filter(m => m.rating >= 4);
+            const good = mealLibrary.filter(m => m.rating === 3 || m.rating === 0);
+            const avoid = mealLibrary.filter(m => m.rating > 0 && m.rating <= 2);
+
+            const availableMeals = {
+                breakfast: [...favorites.filter(m => m.type === 'breakfast'), ...good.filter(m => m.type === 'breakfast')].filter(m => !avoid.includes(m)),
+                lunch: [...favorites.filter(m => m.type === 'lunch'), ...good.filter(m => m.type === 'lunch')].filter(m => !avoid.includes(m)),
+                dinner: [...favorites.filter(m => m.type === 'dinner'), ...good.filter(m => m.type === 'dinner')].filter(m => !avoid.includes(m))
+            };
+
+            // Parse requirements to understand what's needed
+            const parsedRequirements = {
+                pork: null,
+                fish: null,
+                chicken: [],
+                pasta: null,
+                beef: null,
+                specificDays: {}
+            };
+
+            requirements.forEach(req => {
+                const lower = req.toLowerCase();
+                
+                // Check for specific day requirements
+                const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                days.forEach((day, index) => {
+                    if (lower.includes(day)) {
+                        if (!parsedRequirements.specificDays[index]) {
+                            parsedRequirements.specificDays[index] = [];
+                        }
+                        
+                        // Check what protein/meal type is mentioned
+                        if (lower.includes('beef') || lower.includes('minced')) {
+                            parsedRequirements.specificDays[index].push('beef');
+                        }
+                        if (lower.includes('pork')) {
+                            parsedRequirements.specificDays[index].push('pork');
+                        }
+                        if (lower.includes('fish') || lower.includes('salmon')) {
+                            parsedRequirements.specificDays[index].push('fish');
+                        }
+                        if (lower.includes('chicken')) {
+                            parsedRequirements.specificDays[index].push('chicken');
+                        }
+                        if (lower.includes('pasta')) {
+                            parsedRequirements.specificDays[index].push('pasta');
+                        }
+                    }
+                });
+
+                // General requirements (not tied to specific days)
+                if (lower.includes('pork') && !days.some(d => lower.includes(d))) {
+                    parsedRequirements.pork = true;
+                }
+                if (lower.includes('fish') && !days.some(d => lower.includes(d))) {
+                    parsedRequirements.fish = true;
+                }
+                if (lower.includes('chicken') && !days.some(d => lower.includes(d))) {
+                    parsedRequirements.chicken.push(true);
+                }
+                if (lower.includes('pasta') && !days.some(d => lower.includes(d))) {
+                    parsedRequirements.pasta = true;
+                }
+                if (lower.includes('beef') && !days.some(d => lower.includes(d))) {
+                    parsedRequirements.beef = true;
+                }
+            });
+
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            weeklyPlan = [];
+            
+            const usedMeals = {
+                pork: false,
+                fish: false,
+                chicken: 0,
+                pasta: false,
+                beef: false
+            };
+
+            // Track meal usage counts for repetition prevention
+            const mealUsageCount = {};
+
+            for (let i = 0; i < 7; i++) {
+                // Select breakfast (max 2 repeats per week)
+                const breakfastMeal = selectMealWithoutRepetition('breakfast', mealUsageCount, availableMeals.breakfast, 2);
+                const breakfast = breakfastMeal?.name || 'Scrambled Eggs with Toast Fingers';
+                mealUsageCount[breakfast] = (mealUsageCount[breakfast] || 0) + 1;
+                
+                // Select lunch (max 2 repeats per week)
+                const lunchMeal = selectMealWithoutRepetition('lunch', mealUsageCount, availableMeals.lunch, 2);
+                const lunch = lunchMeal?.name || 'Cheese & Veggie Omelet';
+                mealUsageCount[lunch] = (mealUsageCount[lunch] || 0) + 1;
+                
+                let dinner;
+
+                // Check if this day has specific requirements
+                if (parsedRequirements.specificDays[i]) {
+                    const dayRequirements = parsedRequirements.specificDays[i];
+                    
+                    if (dayRequirements.includes('beef')) {
+                        const beefMeals = availableMeals.dinner.filter(m => 
+                            m.protein === 'beef' || m.name.toLowerCase().includes('beef') || m.name.toLowerCase().includes('meatball')
+                        );
+                        const selectedMeal = selectMealWithoutRepetition('dinner', mealUsageCount, beefMeals, 1);
+                        dinner = selectedMeal?.name || 'Beef & Vegetable Stir Fry';
+                        usedMeals.beef = true;
+                    } else if (dayRequirements.includes('pork')) {
+                        const porkMeals = availableMeals.dinner.filter(m => m.protein === 'pork');
+                        const selectedMeal = selectMealWithoutRepetition('dinner', mealUsageCount, porkMeals, 1);
+                        dinner = selectedMeal?.name || 'Crispy Pork Belly with Sweet Potato Mash';
+                        usedMeals.pork = true;
+                    } else if (dayRequirements.includes('fish')) {
+                        const fishMeals = availableMeals.dinner.filter(m => m.protein === 'fish');
+                        const selectedMeal = selectMealWithoutRepetition('dinner', mealUsageCount, fishMeals, 1);
+                        dinner = selectedMeal?.name || 'Baked Salmon with Roasted Vegetables';
+                        usedMeals.fish = true;
+                    } else if (dayRequirements.includes('chicken')) {
+                        const chickenMeals = availableMeals.dinner.filter(m => m.protein === 'chicken');
+                        const selectedMeal = selectMealWithoutRepetition('dinner', mealUsageCount, chickenMeals, 1);
+                        dinner = selectedMeal?.name || 'Honey Glazed Chicken with Couscous';
+                        usedMeals.chicken++;
+                    } else if (dayRequirements.includes('pasta')) {
+                        const pastaMeals = availableMeals.dinner.filter(m => m.name.toLowerCase().includes('pasta'));
+                        const selectedMeal = selectMealWithoutRepetition('dinner', mealUsageCount, pastaMeals, 1);
+                        dinner = selectedMeal?.name || 'Creamy Chicken & Mushroom Pasta';
+                        usedMeals.pasta = true;
+                    }
+                }
+
+                // If no specific day requirement, fill in general requirements
+                if (!dinner) {
+                    if (parsedRequirements.pork && !usedMeals.pork) {
+                        const porkMeals = availableMeals.dinner.filter(m => m.protein === 'pork');
+                        const selectedMeal = selectMealWithoutRepetition('dinner', mealUsageCount, porkMeals, 1);
+                        dinner = selectedMeal?.name || 'Crispy Pork Belly with Sweet Potato Mash';
+                        usedMeals.pork = true;
+                    } else if (parsedRequirements.fish && !usedMeals.fish) {
+                        const fishMeals = availableMeals.dinner.filter(m => m.protein === 'fish');
+                        const selectedMeal = selectMealWithoutRepetition('dinner', mealUsageCount, fishMeals, 1);
+                        dinner = selectedMeal?.name || 'Baked Salmon with Roasted Vegetables';
+                        usedMeals.fish = true;
+                    } else if (parsedRequirements.pasta && !usedMeals.pasta) {
+                        const pastaMeals = availableMeals.dinner.filter(m => m.name.toLowerCase().includes('pasta'));
+                        const selectedMeal = selectMealWithoutRepetition('dinner', mealUsageCount, pastaMeals, 1);
+                        dinner = selectedMeal?.name || 'Creamy Chicken & Mushroom Pasta';
+                        usedMeals.pasta = true;
+                    } else if (parsedRequirements.chicken.length > 0 && usedMeals.chicken < parsedRequirements.chicken.length) {
+                        const chickenMeals = availableMeals.dinner.filter(m => m.protein === 'chicken');
+                        const selectedMeal = selectMealWithoutRepetition('dinner', mealUsageCount, chickenMeals, 1);
+                        dinner = selectedMeal?.name || 'Honey Glazed Chicken with Couscous';
+                        usedMeals.chicken++;
+                    } else if (parsedRequirements.beef && !usedMeals.beef) {
+                        const beefMeals = availableMeals.dinner.filter(m => 
+                            m.protein === 'beef' || m.name.toLowerCase().includes('beef') || m.name.toLowerCase().includes('meatball')
+                        );
+                        const selectedMeal = selectMealWithoutRepetition('dinner', mealUsageCount, beefMeals, 1);
+                        dinner = selectedMeal?.name || 'Beef & Vegetable Stir Fry';
+                        usedMeals.beef = true;
+                    } else {
+                        // Fill with any available dinner (max 1 repeat)
+                        const selectedMeal = selectMealWithoutRepetition('dinner', mealUsageCount, availableMeals.dinner, 1);
+                        dinner = selectedMeal?.name || 'Roast Chicken with Gravy & Veggies';
+                    }
+                }
+
+                // Track dinner usage
+                mealUsageCount[dinner] = (mealUsageCount[dinner] || 0) + 1;
+
+                weeklyPlan.push({ breakfast, lunch, dinner });
+            }
+
+            await saveWeeklyPlan();
+            await generateShoppingList();
+            renderWeeklyPlan();
+        }
+
+        async function generateShoppingList() {
+            const allIngredients = new Map();
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+            weeklyPlan.forEach((day, dayIndex) => {
+                [
+                    { mealName: day.breakfast, mealType: 'Breakfast' },
+                    { mealName: day.lunch, mealType: 'Lunch' },
+                    { mealName: day.dinner, mealType: 'Dinner' }
+                ].forEach(({ mealName, mealType }) => {
+                    const meal = mealLibrary.find(m => m.name === mealName);
+                    if (meal) {
+                        meal.ingredients.forEach(ing => {
+                            // Handle both old string format and new object format during transition
+                            let ingredientData;
+                            if (typeof ing === 'string') {
+                                // Old format - parse it
+                                const parsed = extractQuantityAndUnit(ing);
+                                ingredientData = {
+                                    name: parsed.name.toLowerCase(),
+                                    quantity: parsed.amount,
+                                    unit: parsed.unit
+                                };
+                            } else {
+                                // New structured format
+                                ingredientData = {
+                                    name: ing.name.toLowerCase(),
+                                    quantity: ing.quantity,
+                                    unit: ing.unit
+                                };
+                            }
+                            
+                            const normalizedName = ingredientData.name;
+                            
+                            if (!allIngredients.has(normalizedName)) {
+                                allIngredients.set(normalizedName, {
+                                    displayName: ingredientData.name.charAt(0).toUpperCase() + ingredientData.name.slice(1),
+                                    totalAmount: 0,
+                                    unit: ingredientData.unit,
+                                    usage: []
+                                });
+                            }
+                            
+                            const ingData = allIngredients.get(normalizedName);
+                            
+                            // Only add amounts if units match
+                            if (ingData.unit === ingredientData.unit) {
+                                ingData.totalAmount += ingredientData.quantity;
+                            } else if (ingData.unit === 'count' && ingredientData.unit !== 'count') {
+                                // Replace count with actual unit if we find one
+                                ingData.unit = ingredientData.unit;
+                                ingData.totalAmount = ingredientData.quantity;
+                            }
+                            
+                            ingData.usage.push({
+                                day: days[dayIndex],
+                                meal: mealType,
+                                mealName: mealName
+                            });
+                        });
+                    }
+                });
+            });
+
+            shoppingList = Array.from(allIngredients.entries()).map(([normalizedName, data]) => {
+                let itemName = data.displayName;
+                let quantityDisplay = '';
+                
+                // Format the quantity display - show only total quantity needed
+                if (data.unit === 'count') {
+                    // For count-based items, just show the number
+                    quantityDisplay = `${Math.round(data.totalAmount)}`;
+                } else {
+                    // Show total amount with unit
+                    const roundedAmount = Math.round(data.totalAmount * 10) / 10; // Round to 1 decimal
+                    quantityDisplay = `${roundedAmount}${data.unit}`;
+                }
+                
+                return {
+                    name: itemName,
+                    quantity: quantityDisplay,
+                    item: `${itemName} (${quantityDisplay})`, // Keep for backward compatibility
+                    count: data.usage.length,
+                    usage: data.usage,
+                    checked: false
+                };
+            });
+
+            await saveShoppingList();
+            renderShoppingList();
+        }
+
+        // Keep old parsing function for backward compatibility during transition
+        function extractQuantityAndUnit(ingredient) {
+            const patterns = [
+                /(\d+(?:\.\d+)?)\s*(kg|g|lb|oz|ml|l)\s+(.+)/i,
+                /(\d+(?:\.\d+)?)\s*(tbsp|tsp|tablespoon|tablespoons|teaspoon|teaspoons|cup|cups)\s+(.+)/i,
+                /(\d+(?:\.\d+)?)\s+(.+)/i
+            ];
+            
+            for (const pattern of patterns) {
+                const match = ingredient.match(pattern);
+                if (match) {
+                    if (pattern.source.includes('kg|g|lb')) {
+                        return {
+                            amount: parseFloat(match[1]),
+                            unit: match[2].toLowerCase(),
+                            name: match[3].trim()
+                        };
+                    } else if (pattern.source.includes('tbsp|tsp')) {
+                        return {
+                            amount: parseFloat(match[1]),
+                            unit: match[2].toLowerCase().replace('tablespoon', 'tbsp').replace('tablespoons', 'tbsp').replace('teaspoon', 'tsp').replace('teaspoons', 'tsp'),
+                            name: match[3].trim()
+                        };
+                    } else {
+                        return {
+                            amount: parseFloat(match[1]),
+                            unit: 'count',
+                            name: match[2].trim()
+                        };
+                    }
+                }
+            }
+            
+            return {
+                amount: 1,
+                unit: 'count',
+                name: ingredient.trim()
+            };
+        }
+
+        function renderShoppingList() {
+            const container = document.getElementById('shopping-list-content');
+            
+            if (shoppingList.length === 0) {
+                container.innerHTML = '<div class="empty-state"><h3>No shopping list yet</h3><p>Generate a weekly plan first!</p></div>';
+                return;
+            }
+
+            const categories = {
+                'Proteins': [],
+                'Dairy': [],
+                'Grains & Pasta': [],
+                'Vegetables': [],
+                'Fruits': [],
+                'Other': []
+            };
+
+            shoppingList.forEach(item => {
+                const lower = item.name.toLowerCase();
+                if (lower.includes('chicken') || lower.includes('beef') || lower.includes('pork') || lower.includes('fish') || lower.includes('salmon') || lower.includes('lamb') || lower.includes('egg')) {
+                    categories['Proteins'].push(item);
+                } else if (lower.includes('milk') || lower.includes('cheese') || lower.includes('yogurt') || lower.includes('butter') || lower.includes('cream')) {
+                    categories['Dairy'].push(item);
+                } else if (lower.includes('bread') || lower.includes('pasta') || lower.includes('rice') || lower.includes('oat') || lower.includes('couscous') || lower.includes('tortilla')) {
+                    categories['Grains & Pasta'].push(item);
+                } else if (lower.includes('carrot') || lower.includes('potato') || lower.includes('pepper') || lower.includes('zucchini') || lower.includes('mushroom') || lower.includes('spinach') || lower.includes('bean') || lower.includes('pumpkin') || lower.includes('tomato') || lower.includes('onion') || lower.includes('celery') || lower.includes('parsnip')) {
+                    categories['Vegetables'].push(item);
+                } else if (lower.includes('banana') || lower.includes('berr') || lower.includes('apple') || lower.includes('avocado') || lower.includes('lemon')) {
+                    categories['Fruits'].push(item);
+                } else {
+                    categories['Other'].push(item);
+                }
+            });
+
+            let html = '';
+            const categoryTranslations = {
+                'Proteins': t('proteins'),
+                'Dairy': t('dairy'),
+                'Grains & Pasta': t('grainsPasta'),
+                'Vegetables': t('vegetables'),
+                'Fruits': t('fruits'),
+                'Other': t('other')
+            };
+            
+            for (const [category, items] of Object.entries(categories)) {
+                if (items.length > 0) {
+                    const translatedCategory = categoryTranslations[category] || category;
+                    html += `<h3 style="margin-top: 20px; margin-bottom: 10px; color: #667eea;">${translatedCategory}</h3>`;
+                    html += '<ul class="shopping-list">';
+                    items.forEach((item, index) => {
+                        const globalIndex = shoppingList.indexOf(item);
+                        const hasAlternatives = findAlternatives(item.name);
+                        
+                        html += `
+                            <li class="shopping-item ${item.checked ? 'checked' : ''}" id="shopping-item-${globalIndex}">
+                                <div class="shopping-item-content">
+                                    <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleShoppingItem(${globalIndex})">
+                                    <div class="shopping-item-details">
+                                        <div class="shopping-item-name">
+                                            ${item.name}
+                                        </div>
+                                        <div class="shopping-item-quantity">
+                                            ${item.quantity}
+                                        </div>
+                                    </div>
+                                    <div class="shopping-item-buttons">
+                                        ${hasAlternatives ? `<button class="alt-btn" onclick="toggleAlternatives(${globalIndex})">Alt.</button>` : ''}
+                                        <button class="info-btn" onclick="toggleMealInfo(${globalIndex})">Info</button>
+                                    </div>
+                                </div>
+                                <div id="info-${globalIndex}" style="display: none;"></div>
+                                <div id="alternatives-${globalIndex}" style="display: none;"></div>
+                            </li>
+                        `;
+                    });
+                    html += '</ul>';
+                }
+            }
+
+            container.innerHTML = html;
+        }
+
+        function toggleMealInfo(index) {
+            const infoDiv = document.getElementById(`info-${index}`);
+            const altDiv = document.getElementById(`alternatives-${index}`);
+            const item = shoppingList[index];
+            
+            // Close alternatives if open
+            if (altDiv && altDiv.style.display === 'block') {
+                altDiv.style.display = 'none';
+            }
+            
+            // Toggle meal info
+            if (infoDiv.style.display === 'none') {
+                if (item.usage && item.usage.length > 0) {
+                    const usageByDay = {};
+                    item.usage.forEach(u => {
+                        if (!usageByDay[u.day]) {
+                            usageByDay[u.day] = [];
+                        }
+                        usageByDay[u.day].push(`${u.meal} (${u.mealName})`);
+                    });
+                    
+                    const usageList = Object.entries(usageByDay)
+                        .map(([day, meals]) => `<div class="meal-usage-item"><strong>${day}:</strong> ${meals.join(', ')}</div>`)
+                        .join('');
+                    
+                    infoDiv.innerHTML = `
+                        <div class="meal-usage">
+                            <h4>Used in these meals:</h4>
+                            ${usageList}
+                        </div>
+                    `;
+                    infoDiv.style.display = 'block';
+                }
+            } else {
+                infoDiv.style.display = 'none';
+            }
+        }
+
+        function toggleAlternatives(index) {
+            const altDiv = document.getElementById(`alternatives-${index}`);
+            const infoDiv = document.getElementById(`info-${index}`);
+            const item = shoppingList[index];
+            
+            // Close meal info if open
+            if (infoDiv && infoDiv.style.display === 'block') {
+                infoDiv.style.display = 'none';
+            }
+            
+            // Toggle alternatives
+            if (altDiv.style.display === 'none') {
+                const alternatives = findAlternatives(item.name);
+                if (alternatives) {
+                    altDiv.innerHTML = `
+                        <div class="alternatives-list">
+                            <h4>Alternative options:</h4>
+                            <ul>
+                                ${alternatives.map(alt => `<li>• ${alt}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                    altDiv.style.display = 'block';
+                }
+            } else {
+                altDiv.style.display = 'none';
+            }
+        }
+
+        function findAlternatives(itemName) {
+            const lower = itemName.toLowerCase();
+            for (const [key, alternatives] of Object.entries(ingredientAlternatives)) {
+                if (lower.includes(key)) {
+                    return alternatives;
+                }
+            }
+            return null;
+        }
+
+        async function toggleShoppingItem(index) {
+            shoppingList[index].checked = !shoppingList[index].checked;
+            await saveShoppingList();
+            renderShoppingList();
+        }
+
+        function renderRequirements() {
+            const container = document.getElementById('requirements-list');
+            if (!container) return;
+
+            container.innerHTML = requirements.map((req, index) => `
+                <div class="requirement-item">
+                    <input type="text" value="${req}" onchange="updateRequirement(${index}, this.value)" placeholder="e.g., At least 1 pork belly meal">
+                    <button onclick="removeRequirement(${index})">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        function addRequirement() {
+            requirements.push('');
+            renderRequirements();
+        }
+
+        async function removeRequirement(index) {
+            requirements.splice(index, 1);
+            await saveRequirements();
+            renderRequirements();
+        }
+
+        async function updateRequirement(index, value) {
+            requirements[index] = value;
+            await saveRequirements();
+        }
+
+        function checkPrepNotifications() {
+            const container = document.getElementById('prep-notifications');
+            if (!container) return;
+
+            const today = new Date();
+            const notifications = [];
+            const urgentNotifications = [];
+
+            weeklyPlan.forEach((dayPlan, dayIndex) => {
+                [dayPlan.breakfast, dayPlan.lunch, dayPlan.dinner].forEach(mealName => {
+                    const meal = mealLibrary.find(m => m.name === mealName);
+                    if (meal && meal.advancePrep) {
+                        const daysAway = dayIndex;
+                        const hoursNeeded = meal.advancePrep.hoursNeeded;
+                        const hoursAway = daysAway * 24;
+
+                        // If meal is within prep time window
+                        if (hoursAway <= hoursNeeded + 24) {
+                            const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                            const notification = {
+                                meal: meal.name,
+                                day: dayNames[dayIndex],
+                                action: meal.advancePrep.defrost,
+                                urgent: hoursAway < hoursNeeded
+                            };
+
+                            if (notification.urgent) {
+                                urgentNotifications.push(notification);
+                            } else {
+                                notifications.push(notification);
+                            }
+                        }
+                    }
+                });
+            });
+
+            let html = '';
+
+            if (urgentNotifications.length > 0) {
+                html += `
+                    <div class="notification-alert notification-urgent">
+                        <h3>⚠️ URGENT: Defrost Now!</h3>
+                        <ul>
+                            ${urgentNotifications.map(n => `
+                                <li><strong>${n.meal}</strong> (${n.day}): ${n.action}</li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            if (notifications.length > 0) {
+                html += `
+                    <div class="notification-alert">
+                        <h3>🔔 Preparation Reminders</h3>
+                        <ul>
+                            ${notifications.map(n => `
+                                <li><strong>${n.meal}</strong> (${n.day}): ${n.action}</li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Swap meal functionality
+        let swapSource = null;
+
+        async function swapMeal(dayIndex, mealType) {
+            if (!swapSource) {
+                // First selection - store source
+                swapSource = { dayIndex, mealType };
+                alert(`Swap mode: Now click "Swap" on another meal to swap with ${getDayName(dayIndex)} ${mealType}`);
+            } else {
+                // Second selection - perform swap
+                const temp = weeklyPlan[swapSource.dayIndex][swapSource.mealType];
+                weeklyPlan[swapSource.dayIndex][swapSource.mealType] = weeklyPlan[dayIndex][mealType];
+                weeklyPlan[dayIndex][mealType] = temp;
+                
+                swapSource = null;
+                await saveWeeklyPlan();
+                await generateShoppingList();
+                renderWeeklyPlan();
+            }
+        }
+
+        function getDayName(dayIndex) {
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            return days[dayIndex];
+        }
+
+        async function replaceMeal(dayIndex, mealType) {
+            // Filter meals by type
+            const mealTypeMap = {
+                'breakfast': 'breakfast',
+                'lunch': 'lunch',
+                'dinner': 'dinner'
+            };
+            
+            const filteredMeals = mealLibrary.filter(m => m.type === mealTypeMap[mealType]);
+            
+            if (filteredMeals.length === 0) {
+                alert('No meals available for this meal type!');
+                return;
+            }
+
+            // Create modal with meal selection
+            const modalContent = `
+                <h2>Select a ${mealType} for ${getDayName(dayIndex)}</h2>
+                <div class="modal-meal-select">
+                    ${filteredMeals.map(meal => `
+                        <div class="meal-select-item" onclick="selectReplacementMeal(${dayIndex}, '${mealType}', '${meal.name.replace(/'/g, "\\'")}')">
+                            <strong>${meal.name}</strong>
+                            <div style="font-size: 12px; color: #666; margin-top: 4px;">
+                                ${meal.difficulty} • ${meal.prepTime} • ${meal.rating > 0 ? '⭐'.repeat(meal.rating) : 'Not rated'}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            document.getElementById('modal-content').innerHTML = modalContent;
+            document.getElementById('meal-modal').style.display = 'flex';
+        }
+
+        async function selectReplacementMeal(dayIndex, mealType, mealName) {
+            weeklyPlan[dayIndex][mealType] = mealName;
+            await saveWeeklyPlan();
+            await generateShoppingList();
+            renderWeeklyPlan();
+            closeModal();
+        }
+
+        async function createCustomWeek() {
+            // Initialize empty week if needed
+            if (weeklyPlan.length === 0) {
+                weeklyPlan = Array(7).fill(null).map(() => ({ breakfast: '', lunch: '', dinner: '' }));
+            }
+
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            let modalContent = '<h2>Create Custom Week</h2><p>Select meals for each day:</p><div style="max-height: 500px; overflow-y: auto;">';
+            
+            for (let i = 0; i < 7; i++) {
+                modalContent += `
+                    <div style="margin-bottom: 20px; padding: 15px; background: #f9fafb; border-radius: 8px;">
+                        <h3 style="color: #667eea; margin-bottom: 10px;">${days[i]}</h3>
+                        <div style="margin-bottom: 10px;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 5px;">Breakfast:</label>
+                            <select id="custom-breakfast-${i}" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
+                                <option value="">-- Select Breakfast --</option>
+                                ${mealLibrary.filter(m => m.type === 'breakfast').map(m => 
+                                    `<option value="${m.name}" ${weeklyPlan[i]?.breakfast === m.name ? 'selected' : ''}>${m.name}</option>`
+                                ).join('')}
+                            </select>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 5px;">Lunch:</label>
+                            <select id="custom-lunch-${i}" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
+                                <option value="">-- Select Lunch --</option>
+                                ${mealLibrary.filter(m => m.type === 'lunch').map(m => 
+                                    `<option value="${m.name}" ${weeklyPlan[i]?.lunch === m.name ? 'selected' : ''}>${m.name}</option>`
+                                ).join('')}
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 5px;">Dinner:</label>
+                            <select id="custom-dinner-${i}" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
+                                <option value="">-- Select Dinner --</option>
+                                ${mealLibrary.filter(m => m.type === 'dinner').map(m => 
+                                    `<option value="${m.name}" ${weeklyPlan[i]?.dinner === m.name ? 'selected' : ''}>${m.name}</option>`
+                                ).join('')}
+                            </select>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            modalContent += `
+                </div>
+                <button class="btn" onclick="saveCustomWeek()" style="margin-top: 15px;">Save Custom Week</button>
+            `;
+            
+            document.getElementById('modal-content').innerHTML = modalContent;
+            document.getElementById('meal-modal').style.display = 'flex';
+        }
+
+        async function saveCustomWeek() {
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            weeklyPlan = [];
+            
+            for (let i = 0; i < 7; i++) {
+                const breakfast = document.getElementById(`custom-breakfast-${i}`).value;
+                const lunch = document.getElementById(`custom-lunch-${i}`).value;
+                const dinner = document.getElementById(`custom-dinner-${i}`).value;
+                
+                weeklyPlan.push({ breakfast, lunch, dinner });
+            }
+            
+            await saveWeeklyPlan();
+            await generateShoppingList();
+            renderWeeklyPlan();
+            closeModal();
+        }
+
+        // Custom meal functionality
+        function openAddCustomMeal() {
+            const name = prompt('Meal name:');
+            if (!name) return;
+            
+            const type = prompt('Meal type (breakfast/lunch/dinner):');
+            if (!['breakfast', 'lunch', 'dinner'].includes(type)) {
+                alert('Please enter: breakfast, lunch, or dinner');
+                return;
+            }
+            
+            const difficulty = prompt('Difficulty (easy/medium/hard):');
+            if (!['easy', 'medium', 'hard'].includes(difficulty)) {
+                alert('Please enter: easy, medium, or hard');
+                return;
+            }
+            
+            const prepTime = prompt('Prep time (e.g., "30 min"):');
+            if (!prepTime) return;
+            
+            const ingredients = prompt('Ingredients (separate with commas):');
+            if (!ingredients) return;
+            
+            const steps = prompt('Cooking steps (separate with | character):');
+            if (!steps) return;
+            
+            const utensils = prompt('Utensils needed (separate with commas):');
+            if (!utensils) return;
+            
+            const babyNotes = prompt('Baby safety notes:') || '';
+            
+            // Create custom meal
+            const customMeal = {
+                id: 'custom-' + Date.now(),
+                name: name,
+                type: type,
+                difficulty: difficulty,
+                prepTime: prepTime,
+                protein: 'custom',
+                ingredients: ingredients.split(',').map(i => i.trim()),
+                steps: steps.split('|').map(s => s.trim()),
+                utensils: utensils.split(',').map(u => u.trim()),
+                rating: 0,
+                notes: '',
+                babyNotes: babyNotes
+            };
+            
+            mealLibrary.push(customMeal);
+            customMealIds.add(customMeal.id);
+            saveMealLibrary();
+            renderMealLibrary();
+            alert('Custom meal added!');
+        }
+
+        // Source filter
+        function filterBySource(source) {
+            currentSourceFilter = source;
+            document.querySelectorAll('[data-source]').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            renderMealLibrary();
+        }
+
+        // Update renderMealLibrary to include source filter and custom badge
+        function renderMealLibrary() {
+            const container = document.getElementById('meals-container');
+            let filteredMeals = mealLibrary;
+
+            // Apply rating filter
+            if (currentFilter === 'favorites') {
+                filteredMeals = filteredMeals.filter(m => m.rating >= 4);
+            } else if (currentFilter === 'good') {
+                filteredMeals = filteredMeals.filter(m => m.rating === 3);
+            } else if (currentFilter === 'avoid') {
+                filteredMeals = filteredMeals.filter(m => m.rating > 0 && m.rating <= 2);
+            }
+
+            // Apply type filter
+            if (currentTypeFilter !== 'all') {
+                filteredMeals = filteredMeals.filter(m => m.type === currentTypeFilter);
+            }
+
+            // Apply source filter
+            if (currentSourceFilter === 'custom') {
+                filteredMeals = filteredMeals.filter(m => customMealIds.has(m.id));
+            } else if (currentSourceFilter === 'default') {
+                filteredMeals = filteredMeals.filter(m => !customMealIds.has(m.id));
+            }
+
+            // Apply search query
+            if (searchQuery) {
+                const query = searchQuery.toLowerCase();
+                filteredMeals = filteredMeals.filter(m => {
+                    if (m.name.toLowerCase().includes(query)) return true;
+                    
+                    // Search in ingredients - handle both old and new format
+                    if (m.ingredients.some(ing => {
+                        if (typeof ing === 'string') {
+                            return ing.toLowerCase().includes(query);
+                        } else if (ing.name) {
+                            return ing.name.toLowerCase().includes(query);
+                        }
+                        return false;
+                    })) return true;
+                    
+                    return false;
+                });
+            }
+
+            if (filteredMeals.length === 0) {
+                container.innerHTML = '<div class="empty-state"><h3>No meals found</h3><p>Try adjusting your filters or search query!</p></div>';
+                return;
+            }
+
+            container.innerHTML = filteredMeals.map(meal => `
+                <div class="meal-card">
+                    <div class="meal-card-content">
+                        <div class="meal-card-info">
+                            <h3>${meal.name}${meal.isCustom ? '<span class="custom-badge">CUSTOM</span>' : ''}</h3>
+                            <div class="meal-meta">
+                                <span class="badge ${meal.difficulty}">${meal.difficulty}</span>
+                                <span class="badge">⏱️ ${meal.prepTime}</span>
+                                <span class="badge">${getMealTypeEmoji(meal.type)} ${meal.type}</span>
+                            </div>
+                            <div class="stars">
+                                ${renderStars(meal.rating, meal.name)}
+                            </div>
+                            ${meal.notes ? `
+                                <div class="notes-section">
+                                    <strong>Your notes:</strong> ${meal.notes}
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="meal-card-actions">
+                            <button class="btn-compact" onclick="openMealDetail('${meal.name}')">View Recipe</button>
+                            <button class="btn-compact secondary" onclick="addNoteToMeal('${meal.name}')">Add Note</button>
+                            <button class="btn-delete" onclick="deleteMeal('${meal.name}')" title="Delete meal">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            // Set active language button
+            document.getElementById('lang-en').classList.toggle('active', currentLanguage === 'en');
+            document.getElementById('lang-pl').classList.toggle('active', currentLanguage === 'pl');
+            
+            initApp();
+        });
+    </script>
+</body>
+</html>
