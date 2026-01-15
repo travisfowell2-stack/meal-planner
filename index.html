@@ -3377,10 +3377,12 @@
                     <span class="badge">⏱️ ${meal.prepTime}</span>
                 </div>
 
-                <h3 style="margin-top: 20px; margin-bottom: 10px;">${t('utensils')}</h3>
-                <ul>
-                    ${getMealField(meal, 'utensils').map(utensil => `<li>${translateIngredient(utensil)}</li>`).join('')}
-                </ul>
+                <h3>${t('utensils')}</h3>
+                <div class="recipe-steps">
+                    <ul style="padding-left: 20px;">
+                        ${getMealField(meal, 'utensils').map(utensil => `<li>${translateIngredient(utensil)}</li>`).join('')}
+                    </ul>
+                </div>
 
                 <h3 style="margin-top: 20px; margin-bottom: 10px;">Ingredients</h3>
                 ${ingredientsHTML}
