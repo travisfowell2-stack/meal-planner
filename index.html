@@ -4190,7 +4190,10 @@
             
             // Create modal with meal selection
             const modalContent = `
-                <h2>Select ${mealType} for ${days[dayIndex]}</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0;">Select ${mealType} for ${days[dayIndex]}</h2>
+                    <button class="close-btn" onclick="closeModal()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666;">&times;</button>
+                </div>
                 <div class="modal-meal-select">
                     ${mealItems}
                 </div>
@@ -4447,10 +4450,6 @@
     <!-- Modal for meal selection -->
     <div id="meal-modal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modal-title">Select Meal</h2>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
-            </div>
             <div id="modal-content">
                 <!-- Dynamic content goes here -->
             </div>
