@@ -4145,10 +4145,10 @@
         function getDayName(dayIndex) {
             const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
             return t(days[dayIndex]);
-    }
+        }
 
         function closeModal() {
-            document.getElementById('meal-modal').style.display = 'none';
+            document.getElementById('meal-replace-modal').style.display = 'none';
         }
 
         async function replaceMeal(dayIndex, mealType) {
@@ -4210,7 +4210,7 @@
                 modalElement.style.visibility = 'visible';  // ADD THIS LINE
                 modalElement.style.opacity = '1';  // ADD THIS LINE
                 
-                const modal = document.getElementById('meal-modal');
+                const modal = document.getElementById('meal-replace-modal');
                 modal.style.display = 'flex';
                 modal.style.alignItems = 'center';
                 modal.style.justifyContent = 'center';
@@ -4455,7 +4455,7 @@
     </script>
 
     <!-- Modal for meal selection -->
-    <div id="meal-modal" class="modal">
+    <div id="meal-replace-modal" class="modal">
         <div class="modal-content">
             <div id="modal-content">
                 <!-- Dynamic content goes here -->
