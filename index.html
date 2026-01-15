@@ -154,11 +154,12 @@
             cursor: pointer;
             font-size: 16px;
             transition: all 0.2s;
-            width: 40px;
-            height: 36px;
+            width: 110px;
+            height: auto;
             display: flex;
             align-items: center;
             justify-content: center;
+            white-space: nowrap;
         }
 
         .btn-delete:hover {
@@ -3379,11 +3380,10 @@
 
                 <h3>${t('utensils')}</h3>
                 <div class="recipe-steps">
-                    <ul style="padding-left: 20px;">
-                        ${getMealField(meal, 'utensils').map(utensil => `<li>${translateIngredient(utensil)}</li>`).join('')}
+                    <ul style="list-style-position: inside; padding-left: 0;">
+                        ${getMealField(meal, 'utensils').map(utensil => `<li style="margin-bottom: 8px;">${translateIngredient(utensil)}</li>`).join('')}
                     </ul>
-                </div>
-
+                </div>  
                 <h3 style="margin-top: 20px; margin-bottom: 10px;">Ingredients</h3>
                 ${ingredientsHTML}
 
@@ -4409,5 +4409,19 @@
             initApp();
         });
     </script>
+
+    <!-- Modal for meal selection -->
+    <div id="meal-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Select Meal</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modal-content">
+                <!-- Dynamic content goes here -->
+            </div>
+        </div>
+    </div>
+    
 </body>
 </html>
