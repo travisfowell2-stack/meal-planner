@@ -4150,6 +4150,8 @@
         }
 
         async function replaceMeal(dayIndex, mealType) {
+            console.log('replaceMeal called:', dayIndex, mealType);
+            
             // Filter meals by type
             const mealTypeMap = {
                 'breakfast': 'breakfast',
@@ -4158,29 +4160,52 @@
             };
             
             const filteredMeals = mealLibrary.filter(m => m.type === mealTypeMap[mealType]);
+            console.log('Filtered meals:', filteredMeals.length);
             
             if (filteredMeals.length === 0) {
                 alert('No meals available for this meal type!');
                 return;
             }
 
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            
+            // Build meal items HTML
+            let mealItems = '';
+            for (let i = 0; i < filteredMeals.length; i++) {
+                const meal = filteredMeals[i];
+                const safeName = meal.name.replace(/'/g, "\\'");
+                const displayName = (currentLanguage === 'pl' && meal.name_pl) ? meal.name_pl : meal.name;
+                
+                mealItems += `
+                    <div class="meal-select-item" onclick="selectReplacementMeal(${dayIndex}, '${mealType}', '${safeName}')">
+                        <strong>${displayName}</strong>
+                        <div style="font-size: 12px; color: #666; margin-top: 4px;">
+                            ${meal.difficulty} • ${meal.prepTime} ${meal.cookTime ? '+ ' + meal.cookTime : ''} • ${meal.rating > 0 ? '⭐'.repeat(meal.rating) : 'Not rated'}
+                        </div>
+                    </div>
+                `;
+            }
+            
             // Create modal with meal selection
             const modalContent = `
-                <h2>Select ${mealType} for ${getDayName(dayIndex)}</h2>
+                <h2>Select ${mealType} for ${days[dayIndex]}</h2>
                 <div class="modal-meal-select">
-                    ${filteredMeals.map(meal => `
-                        <div class="meal-select-item" onclick="selectReplacementMeal(${dayIndex}, '${mealType}', '${meal.name.replace(/'/g, "\\'")}')">
-                            <strong>${getMealField(meal, 'name')}</strong>
-                            <div style="font-size: 12px; color: #666; margin-top: 4px;">
-                                ${meal.difficulty} • ${meal.prepTime} ${meal.cookTime ? '+ ' + meal.cookTime : ''} • ${meal.rating > 0 ? '⭐'.repeat(meal.rating) : 'Not rated'}
-                            </div>
-                        </div>
-                    `).join('')}
+                    ${mealItems}
                 </div>
             `;
             
-            document.getElementById('modal-content').innerHTML = modalContent;
-            document.getElementById('meal-modal').style.display = 'flex';
+            console.log('Modal content length:', modalContent.length);
+            
+            const modalElement = document.getElementById('modal-content');
+            console.log('Modal element:', modalElement);
+            
+            if (modalElement) {
+                modalElement.innerHTML = modalContent;
+                document.getElementById('meal-modal').style.display = 'flex';
+                console.log('Modal should be visible now');
+            } else {
+                console.error('modal-content element not found!');
+            }
         }
 
         async function selectReplacementMeal(dayIndex, mealType, mealName) {
