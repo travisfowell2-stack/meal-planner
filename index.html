@@ -2940,40 +2940,44 @@
                 
                 // Load Meals
                 try {
-                    const loadedMeals = data.slice(1).map(row => {
-                        const safeParse = (value) => {
-                            if (!value) return [];
-                            if (typeof value === 'string') {
-                                try {
-                                    return JSON.parse(value);
-                                } catch (e) {
-                                    console.warn('Could not parse:', value);
-                                    return [];
+                    const data = await readSheet('Meals');
+                    if (data && data.length > 1) {
+                        const loadedMeals = data.slice(1).map(row => {
+                            const safeParse = (value) => {
+                                if (!value) return [];
+                                if (typeof value === 'string') {
+                                    try {
+                                        return JSON.parse(value);
+                                    } catch (e) {
+                                        console.warn('Could not parse:', value);
+                                        return [];
+                                    }
                                 }
-                            }
-                            return value;
-                        };
+                                return value;
+                            };
 
-                        return {
-                            name: row[0],                    // Column A - name
-                            name_pl: row[1] || '',          // Column B - name_pl
-                            type: row[2],                    // Column C - type
-                            difficulty: row[3],              // Column D - difficulty
-                            prepTime: row[4],                // Column E - prepTime
-                            cookTime: row[5],                // Column F - cookTime
-                            protein: row[6],                 // Column G - protein
-                            ingredients: safeParse(row[7]),  // Column H - ingredients
-                            steps: safeParse(row[8]),        // Column I - steps
-                            steps_pl: safeParse(row[9]),     // Column J - steps_pl
-                            utensils: safeParse(row[10]),    // Column K - utensils
-                            utensils_pl: safeParse(row[11]), // Column L - utensils_pl
-                            babyNotes: row[12],              // Column M - babyNotes
-                            babyNotes_pl: row[13] || '',     // Column N - babyNotes_pl
-                            rating: parseInt(row[14]) || 0,  // Column O - rating
-                            isCustom: row[15] === 'TRUE',    // Column P - isCustom
-                            notes: row[16] || ''             // Column Q - notes
-                        };
-                    });
+                            return {
+                                name: row[0],                    // Column A - name
+                                name_pl: row[1] || '',          // Column B - name_pl
+                                type: row[2],                    // Column C - type
+                                difficulty: row[3],              // Column D - difficulty
+                                prepTime: row[4],                // Column E - prepTime
+                                cookTime: row[5],                // Column F - cookTime
+                                protein: row[6],                 // Column G - protein
+                                ingredients: safeParse(row[7]),  // Column H - ingredients
+                                steps: safeParse(row[8]),        // Column I - steps
+                                steps_pl: safeParse(row[9]),     // Column J - steps_pl
+                                utensils: safeParse(row[10]),    // Column K - utensils
+                                utensils_pl: safeParse(row[11]), // Column L - utensils_pl
+                                babyNotes: row[12],              // Column M - babyNotes
+                                babyNotes_pl: row[13] || '',     // Column N - babyNotes_pl
+                                rating: parseInt(row[14]) || 0,  // Column O - rating
+                                isCustom: row[15] === 'TRUE',    // Column P - isCustom
+                                notes: row[16] || ''             // Column Q - notes
+                            };
+                        });
+                        
+                        mealLibrary = loadedMeals;
                         console.log('Loaded', mealLibrary.length, 'meals from Google Sheets');
                     } else {
                         // No meals in sheet, use initial meals
