@@ -3267,25 +3267,25 @@
                 <div class="meal-card">
                     <div class="meal-card-content">
                         <div class="meal-card-info">
-                            <h3>${meal.name}</h3>
+                            <h3>${getMealField(meal, 'name')}</h3>
                             <div class="meal-meta">
-                                <span class="badge ${meal.difficulty}">${meal.difficulty}</span>
+                                <span class="badge ${meal.difficulty}">${getMealField(meal, 'difficulty')}</span>
                                 <span class="badge">⏱️ ${meal.prepTime}</span>
-                                <span class="badge">${getMealTypeEmoji(meal.type)} ${meal.type}</span>
+                                <span class="badge">${getMealTypeEmoji(meal.type)} ${getMealField(meal, 'type')}</span>
                             </div>
                             <div class="stars">
                                 ${renderStars(meal.rating, meal.name)}
                             </div>
                             ${meal.notes ? `
                                 <div class="notes-section">
-                                    <strong>Your notes:</strong> ${meal.notes}
+                                    <strong>${t('yourNotes')}:</strong> ${meal.notes}
                                 </div>
                             ` : ''}
                         </div>
                         <div class="meal-card-actions">
-                            <button class="btn-compact" onclick="openMealDetail('${meal.name}')">View Recipe</button>
-                            <button class="btn-compact secondary" onclick="addNoteToMeal('${meal.name}')">Add Note</button>
-                            <button class="btn-delete" onclick="deleteMeal('${meal.name}')" title="Delete meal">🗑️</button>
+                            <button class="btn-compact" onclick="openMealDetail('${meal.name}')">${t('viewRecipe')}</button>
+                            <button class="btn-compact secondary" onclick="addNoteToMeal('${meal.name}')">${t('addNote')}</button>
+                            <button class="btn-delete" onclick="deleteMeal('${meal.name}')" title="${t('deleteMeal')}">🗑️</button>
                         </div>
                     </div>
                 </div>
