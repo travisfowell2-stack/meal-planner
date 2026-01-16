@@ -1839,29 +1839,36 @@
 
         async function saveMealLibrary() {
             try {
-                // Convert meal library to sheet format
+                // Convert meal library to sheet format - INCLUDE ALL COLUMNS INCLUDING POLISH
                 const rows = [
-                    ['name', 'type', 'difficulty', 'prepTime', 'cookTime', 'protein', 'ingredients', 'steps', 'utensils', 'babyNotes', 'rating', 'isCustom', 'notes']
+                    ['name', 'name_pl', 'type', 'type_pl', 'difficulty', 'difficulty_pl', 'prepTime', 'cookTime', 'protein', 'protein_pl', 'ingredients', 'ingredients_pl', 'steps', 'steps_pl', 'utensils', 'utensils_pl', 'babyNotes', 'babyNotes_pl', 'rating', 'isCustom', 'notes']
                 ];
                 
                 mealLibrary.forEach(meal => {
                     rows.push([
                         meal.name || '',
+                        meal.name_pl || '',
                         meal.type || meal.category || '',
+                        meal.type_pl || '',
                         meal.difficulty || '',
+                        meal.difficulty_pl || '',
                         meal.prepTime || '',
                         meal.cookTime || '',
                         meal.protein || '',
+                        meal.protein_pl || '',
                         JSON.stringify(meal.ingredients || []),
+                        JSON.stringify(meal.ingredients_pl || []),
                         JSON.stringify(meal.steps || []),
+                        JSON.stringify(meal.steps_pl || []),
                         JSON.stringify(meal.utensils || []),
+                        JSON.stringify(meal.utensils_pl || []),
                         meal.babyNotes || '',
+                        meal.babyNotes_pl || '',
                         meal.rating || 0,
                         meal.isCustom || false,
                         meal.notes || ''
                     ]);
                 });
-                
                 // Clear and write to sheet
                 await clearSheet('Meals');
                 await writeSheet('Meals', rows);
