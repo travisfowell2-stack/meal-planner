@@ -4300,10 +4300,7 @@
             `;
             
             document.getElementById('modal-meal-content').innerHTML = modalContent;
-            const modal = document.getElementById('meal-modal');
-            modal.style.display = 'flex';
-            modal.style.alignItems = 'center';
-            modal.style.justifyContent = 'center';
+            document.getElementById('meal-modal').classList.add('active');
         }
 
         async function saveCustomWeek() {
