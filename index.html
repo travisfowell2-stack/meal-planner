@@ -2259,7 +2259,7 @@
                                     <div class="meal-row">
                                         <div class="meal-label">${t('breakfast')}:</div>
                                         <div class="meal-name">
-                                            ${breakfastMeal ? `<a href="#" onclick="openMealDetail('${breakfastMeal.name}'); return false;" style="color: #667eea; text-decoration: none;">${getMealField(findMealByName(dayPlan.breakfast), 'name')}</a>` : dayPlan.breakfast || t('notPlanned')}
+                                            ${breakfastMeal ? `<a href="#" onclick="openMealDetail(\`${breakfastMeal.name}\`); return false;" style="color: #667eea; text-decoration: none;">${getMealField(findMealByName(dayPlan.breakfast), 'name')}</a>` : dayPlan.breakfast || t('notPlanned')}
                                         </div>
                                         <div class="meal-actions">
                                             <button class="btn-meal-action" onclick="swapMeal(${dayIndex}, 'breakfast')">${t('swap')}</button>
@@ -2269,7 +2269,7 @@
                                     <div class="meal-row">
                                         <div class="meal-label">${t('lunch')}:</div>
                                         <div class="meal-name">
-                                            ${lunchMeal ? `<a href="#" onclick="openMealDetail('${lunchMeal.name}'); return false;" style="color: #667eea; text-decoration: none;">${getMealField(findMealByName(dayPlan.lunch), 'name')}</a>` : dayPlan.lunch || t('notPlanned')}
+                                            ${lunchMeal ? `<a href="#" onclick="openMealDetail(\`${lunchMeal.name}\`); return false;" style="color: #667eea; text-decoration: none;">${getMealField(findMealByName(dayPlan.lunch), 'name')}</a>` : dayPlan.lunch || t('notPlanned')}
                                         </div>
                                         <div class="meal-actions">
                                             <button class="btn-meal-action" onclick="swapMeal(${dayIndex}, 'lunch')">${t('swap')}</button>
@@ -2279,7 +2279,7 @@
                                     <div class="meal-row">
                                         <div class="meal-label">${t('dinner')}:</div>
                                         <div class="meal-name">
-                                            ${dinnerMeal ? `<a href="#" onclick="openMealDetail('${dinnerMeal.name}'); return false;" style="color: #667eea; text-decoration: none;">${getMealField(findMealByName(dayPlan.dinner), 'name')}</a>` : dayPlan.dinner || t('notPlanned')}
+                                            ${dinnerMeal ? `<a href="#" onclick="openMealDetail(\`${dinnerMeal.name}\`); return false;" style="color: #667eea; text-decoration: none;">${getMealField(findMealByName(dayPlan.dinner), 'name')}</a>` : dayPlan.dinner || t('notPlanned')}
                                         </div>
                                         <div class="meal-actions">
                                             <button class="btn-meal-action" onclick="swapMeal(${dayIndex}, 'dinner')">${t('swap')}</button>
