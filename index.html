@@ -1274,9 +1274,21 @@
             if (!meal) return '';
             
             // If in Polish mode and Polish field exists, use it
-            if (currentLanguage === 'pl' && meal[fieldName + '_pl']) {
-                return meal[fieldName + '_pl'];
+            if (currentLanguage === 'pl') {
+                const polishField = fieldName + '_pl';
+                
+                // For array fields (steps, utensils), check if array has content
+                if (fieldName === 'steps' || fieldName === 'utensils') {
+                    if (meal[polishField] && Array.isArray(meal[polishField]) && meal[polishField].length > 0) {
+                        return meal[polishField];
+                    }
+                }
+                // For string fields (name, type, difficulty, protein, babyNotes)
+                else if (meal[polishField]) {
+                    return meal[polishField];
+                }
             }
+            
             // Otherwise use English field
             return meal[fieldName] || '';
         }
@@ -2963,20 +2975,24 @@
                                 name: row[0],                    // Column A - name
                                 name_pl: row[1] || '',          // Column B - name_pl
                                 type: row[2],                    // Column C - type
-                                difficulty: row[3],              // Column D - difficulty
-                                prepTime: row[4],                // Column E - prepTime
-                                cookTime: row[5],                // Column F - cookTime
-                                protein: row[6],                 // Column G - protein
-                                ingredients: safeParse(row[7]),  // Column H - ingredients
-                                steps: safeParse(row[8]),        // Column I - steps
-                                steps_pl: safeParse(row[9]),     // Column J - steps_pl
-                                utensils: safeParse(row[10]),    // Column K - utensils
-                                utensils_pl: safeParse(row[11]), // Column L - utensils_pl
-                                babyNotes: row[12],              // Column M - babyNotes
-                                babyNotes_pl: row[13] || '',     // Column N - babyNotes_pl
-                                rating: parseInt(row[14]) || 0,  // Column O - rating
-                                isCustom: row[15] === 'TRUE',    // Column P - isCustom
-                                notes: row[16] || ''             // Column Q - notes
+                                type_pl: row[3] || '',          // Column D - type_pl
+                                difficulty: row[4],              // Column E - difficulty
+                                difficulty_pl: row[5] || '',    // Column F - difficulty_pl
+                                prepTime: row[6],                // Column G - prepTime
+                                cookTime: row[7],                // Column H - cookTime
+                                protein: row[8],                 // Column I - protein
+                                protein_pl: row[9] || '',       // Column J - protein_pl
+                                ingredients: safeParse(row[10]), // Column K - ingredients
+                                ingredients_pl: safeParse(row[11]), // Column L - ingredients_pl (empty, for future use)
+                                steps: safeParse(row[12]),       // Column M - steps
+                                steps_pl: safeParse(row[13]),    // Column N - steps_pl
+                                utensils: safeParse(row[14]),    // Column O - utensils
+                                utensils_pl: safeParse(row[15]), // Column P - utensils_pl
+                                babyNotes: row[16],              // Column Q - babyNotes
+                                babyNotes_pl: row[17] || '',    // Column R - babyNotes_pl
+                                rating: parseInt(row[18]) || 0,  // Column S - rating
+                                isCustom: row[19] === 'TRUE',    // Column T - isCustom
+                                notes: row[20] || ''             // Column U - notes
                             };
                         });
                         
