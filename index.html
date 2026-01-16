@@ -4251,7 +4251,12 @@
             }
 
             const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-            let modalContent = '<h2>Create Custom Week</h2><p>Select meals for each day:</p><div style="max-height: 500px; overflow-y: auto;">';
+            let modalContent = '<div style="padding: 20px;">';
+            modalContent += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #e5e7eb;">';
+            modalContent += '<h2 style="margin: 0; font-size: 24px; color: #333;">Create Custom Week</h2>';
+            modalContent += '<button onclick="closeMealModal()" style="background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 600;">✕ Close</button>';
+            modalContent += '</div>';
+            modalContent += '<p style="margin-bottom: 20px;">Select meals for each day:</p><div style="max-height: 500px; overflow-y: auto;">';
             
             for (let i = 0; i < 7; i++) {
                 modalContent += `
@@ -4262,7 +4267,7 @@
                             <select id="custom-breakfast-${i}" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
                                 <option value="">-- Select Breakfast --</option>
                                 ${mealLibrary.filter(m => m.type === 'breakfast').map(m => 
-                                    `<option value="${m.name}" ${weeklyPlan[i]?.breakfast === m.name ? 'selected' : ''}>${m.name}</option>`
+                                    `<option value="${m.name}" ${weeklyPlan[i]?.breakfast === m.name ? 'selected' : ''}>${getMealField(m, 'name')}</option>`
                                 ).join('')}
                             </select>
                         </div>
@@ -4271,7 +4276,7 @@
                             <select id="custom-lunch-${i}" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
                                 <option value="">-- Select Lunch --</option>
                                 ${mealLibrary.filter(m => m.type === 'lunch').map(m => 
-                                    `<option value="${m.name}" ${weeklyPlan[i]?.lunch === m.name ? 'selected' : ''}>${m.name}</option>`
+                                    `<option value="${m.name}" ${weeklyPlan[i]?.lunch === m.name ? 'selected' : ''}>${getMealField(m, 'name')}</option>`
                                 ).join('')}
                             </select>
                         </div>
@@ -4280,7 +4285,7 @@
                             <select id="custom-dinner-${i}" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
                                 <option value="">-- Select Dinner --</option>
                                 ${mealLibrary.filter(m => m.type === 'dinner').map(m => 
-                                    `<option value="${m.name}" ${weeklyPlan[i]?.dinner === m.name ? 'selected' : ''}>${m.name}</option>`
+                                    `<option value="${m.name}" ${weeklyPlan[i]?.dinner === m.name ? 'selected' : ''}>${getMealField(m, 'name')}</option>`
                                 ).join('')}
                             </select>
                         </div>
@@ -4290,14 +4295,15 @@
             
             modalContent += `
                 </div>
-                <button class="btn" onclick="saveCustomWeek()" style="margin-top: 15px;">Save Custom Week</button>
+                <button class="btn" onclick="saveCustomWeek()" style="margin-top: 15px; width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer;">Save Custom Week</button>
+                </div>
             `;
             
-            document.getElementById('modal-content').innerHTML = modalContent;
+            document.getElementById('modal-meal-content').innerHTML = modalContent;
             const modal = document.getElementById('meal-modal');
             modal.style.display = 'flex';
             modal.style.alignItems = 'center';
-            modal.style.justifyContent = 'center';        
+            modal.style.justifyContent = 'center';
         }
 
         async function saveCustomWeek() {
@@ -4315,7 +4321,7 @@
             await saveWeeklyPlan();
             await generateShoppingList();
             renderWeeklyPlan();
-            closeModal();
+            closeMealModal();
         }
 
         // Custom meal functionality
