@@ -1479,13 +1479,7 @@
                 const gisScript = document.createElement('script');
                 gisScript.src = 'https://accounts.google.com/gsi/client';
                 gisScript.onload = () => {
-                    tokenClient = google.accounts.oauth2.initTokenClient({
-                        client_id: GOOGLE_SHEETS_CONFIG.clientId,
-                        scope: GOOGLE_SHEETS_CONFIG.scopes,
-                        ux_mode: 'redirect',
-                        redirect_uri: window.location.origin + window.location.pathname,
-                        callback: '', // defined later
-                    });
+                    // Mark as loaded - we'll handle OAuth manually via redirect
                     gisLoaded = true;
                     maybeEnableButtons();
                 };
@@ -1527,7 +1521,7 @@
             return false;
         }
 
-        // Request access token
+        // Request access token via direct OAuth redirect
         function getAccessToken() {
             return new Promise((resolve, reject) => {
                 // Try to use stored token first
@@ -1537,15 +1531,24 @@
                     return;
                 }
 
-                // No valid token - trigger OAuth redirect
-                console.log('No valid token, initiating OAuth redirect...');
+                // No valid token - build OAuth URL and redirect
+                console.log('No valid token, redirecting to Google OAuth...');
                 showSaveNotification('Redirecting to Google sign in...', false);
                 
-                // Trigger the redirect
-                tokenClient.requestAccessToken({ prompt: '' });
+                const redirectUri = window.location.origin + window.location.pathname;
+                const oauthUrl = 'https://accounts.google.com/o/oauth2/v2/auth?' + new URLSearchParams({
+                    client_id: GOOGLE_SHEETS_CONFIG.clientId,
+                    redirect_uri: redirectUri,
+                    response_type: 'token',
+                    scope: GOOGLE_SHEETS_CONFIG.scopes,
+                    include_granted_scopes: 'true',
+                    state: 'pass-through-value'
+                });
                 
-                // Note: execution will stop here as page redirects
-                // When user returns, handleOAuthCallback will process the token
+                // Redirect to Google OAuth
+                window.location.href = oauthUrl;
+                
+                // Note: execution stops here as page redirects
             });
         }
 
