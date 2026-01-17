@@ -1482,6 +1482,8 @@
                     tokenClient = google.accounts.oauth2.initTokenClient({
                         client_id: GOOGLE_SHEETS_CONFIG.clientId,
                         scope: GOOGLE_SHEETS_CONFIG.scopes,
+                        ux_mode: 'redirect',
+                        redirect_uri: window.location.origin + window.location.pathname,
                         callback: '', // defined later
                     });
                     gisLoaded = true;
@@ -1499,6 +1501,32 @@
             }
         }
 
+
+        // Handle OAuth redirect callback
+        async function handleOAuthCallback() {
+            const urlParams = new URLSearchParams(window.location.hash.substring(1));
+            const token = urlParams.get('access_token');
+            const expiresIn = urlParams.get('expires_in');
+            
+            if (token) {
+                console.log('Access token received from redirect');
+                showSaveNotification('Sign in successful!', false);
+                
+                accessToken = token;
+                
+                // Store the token
+                storeToken(accessToken, parseInt(expiresIn) || 3600);
+                
+                // Clean up URL (remove hash parameters)
+                const cleanUrl = window.location.origin + window.location.pathname;
+                window.history.replaceState({}, document.title, cleanUrl);
+                
+                console.log('Access token stored successfully');
+                return true;
+            }
+            return false;
+        }
+
         // Request access token
         function getAccessToken() {
             return new Promise((resolve, reject) => {
@@ -1509,32 +1537,17 @@
                     return;
                 }
 
-                tokenClient.callback = async (response) => {
-                    if (response.error !== undefined) {
-                        console.error('Token error:', response);
-                        // Clear stored auth on error
-                        localStorage.removeItem('google_authorized');
-                        reject(response);
-                        return;
-                    }
-                    
-                    accessToken = response.access_token;
-                    
-                    // Store the token
-                    storeToken(accessToken, response.expires_in || 3600);
-                    
-                    console.log('New access token obtained');
-                    resolve(accessToken);
-                };
-
-                // Check if user has previously authorized
-                const wasAuthorized = localStorage.getItem('google_authorized') === 'true';
+                // No valid token - trigger OAuth redirect
+                console.log('No valid token, initiating OAuth redirect...');
+                showSaveNotification('Redirecting to Google sign in...', false);
                 
-                // Request token - prompt only if never authorized before
-                tokenClient.requestAccessToken({ 
-                    prompt: wasAuthorized ? '' : 'consent'
-                });
+                // Trigger the redirect
+                tokenClient.requestAccessToken({ prompt: '' });
+                
+                // Note: execution will stop here as page redirects
+                // When user returns, handleOAuthCallback will process the token
             });
+        }
         }
 
         // Sign out function
@@ -1565,6 +1578,11 @@
             try {
                 await getAccessToken();
                 
+                // Set the access token for gapi.client
+                if (accessToken) {
+                    gapi.client.setToken({ access_token: accessToken });
+                }
+                
                 const fullRange = range ? `${sheetName}!${range}` : sheetName;
                 const response = await gapi.client.sheets.spreadsheets.values.get({
                     spreadsheetId: GOOGLE_SHEETS_CONFIG.spreadsheetId,
@@ -1582,6 +1600,11 @@
         async function writeSheet(sheetName, values, range = '') {
             try {
                 await getAccessToken();
+                
+                // Set the access token for gapi.client
+                if (accessToken) {
+                    gapi.client.setToken({ access_token: accessToken });
+                }
                 
                 const fullRange = range ? `${sheetName}!${range}` : sheetName;
                 const response = await gapi.client.sheets.spreadsheets.values.update({
@@ -1604,6 +1627,11 @@
         async function appendSheet(sheetName, values) {
             try {
                 await getAccessToken();
+                
+                // Set the access token for gapi.client
+                if (accessToken) {
+                    gapi.client.setToken({ access_token: accessToken });
+                }
                 
                 const response = await gapi.client.sheets.spreadsheets.values.append({
                     spreadsheetId: GOOGLE_SHEETS_CONFIG.spreadsheetId,
@@ -1628,6 +1656,11 @@
                 
                 const fullRange = range ? `${sheetName}!${range}` : sheetName;
                 const response = await gapi.client.sheets.spreadsheets.values.clear({
+                
+                // Set the access token for gapi.client
+                if (accessToken) {
+                    gapi.client.setToken({ access_token: accessToken });
+                }
                     spreadsheetId: GOOGLE_SHEETS_CONFIG.spreadsheetId,
                     range: fullRange,
                 });
@@ -1701,10 +1734,14 @@
                     await new Promise(resolve => setTimeout(resolve, 100));
                 }
                 
-                showSaveNotification('Connecting to Google Sheets...', false);
+                // Check if we're returning from OAuth redirect
+                const hasOAuthCode = await handleOAuthCallback();
                 
-                // Request authorization
-                await getAccessToken();
+                if (!hasOAuthCode) {
+                    showSaveNotification('Connecting to Google Sheets...', false);
+                    // Request authorization if no valid token
+                    await getAccessToken();
+                }
 
                 // Load translations from Google Sheets
                 await loadTranslations();
